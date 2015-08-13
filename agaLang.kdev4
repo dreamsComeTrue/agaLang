@@ -1,0 +1,4 @@
+[Project]
+Name=agaLang
+Manager=KDevCMakeManager
+VersionControl=kdevgit
