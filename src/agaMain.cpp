@@ -2,6 +2,7 @@
 #include <string>
 #include <cctype>
 
+#include "agaConstants.h"
 #include "agaCompiler.h"
 #include "agaLogger.h"
 #include "agaException.h"
@@ -15,7 +16,7 @@ int main (int argc, char **argv)
 {	
 	if (argc == 1)
 	{
-		agaLogger::log ("Usage: agaLang source.aga");
+		agaLogger::log (AGALANG_USAGE);
 		
 		return - 1;
 	}
@@ -27,7 +28,7 @@ int main (int argc, char **argv)
 
 	if (!stream)
 	{
-		agaLogger::log ("Unable to open the input file!"); 
+		agaLogger::log (AGALANG_FILE_OPEN_ERROR); 
 		
 		return -1;
 	}
