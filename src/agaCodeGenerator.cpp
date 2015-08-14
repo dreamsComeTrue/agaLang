@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "agaCodeGenerator.h"
 #include "agaASTExpression.h"
 
@@ -21,7 +23,9 @@ namespace aga
 
 	const std::string &agaCodeGenerator::GenerateCode (agaASTExpression *expression)
 	{
-		agaASTNode *rootNode = new agaASTNode (ASTNodeType::Program, "");
+		agaASTNode *rootNode = new agaASTNode (ASTNodeType::Program, nullptr, "");
+		rootNode->SetParent (rootNode);
+
 		agaASTNode *resultNode = expression->Evaluate (rootNode);
 
 		GenerateCode (resultNode);
@@ -33,55 +37,89 @@ namespace aga
 
 	void agaCodeGenerator::GenerateCode (agaASTNode *node)
 	{
-		std::string codeLine = node->GetCode();
 		std::vector<agaASTNode *> children = node->GetChildren();
 
-		if (CheckNodesAreFinal (children))
+		if (node->GetType() == ASTNodeType::BinaryOperation)
 		{
-			for (int i = 0; i < children.size(); ++i)
-			{
-				agaASTNode *child = children[i];
-
-				codeLine += " " + child->GetCode();
-				
-				if (i < children.size() - 1)
-				{
-					codeLine += ",";
-				}
-			}
-
-			AddCodeLine (codeLine);
+			GenerateBinaryExpression (node);
 		}
 		else
 		{
+			std::string codeLine = node->GetAllocationBlock().GetCode();
+
 			AddCodeLine (codeLine);
 
 			for (int i = 0; i < children.size(); ++i)
 			{
-				agaASTNode *child = children[i];
-
-				GenerateCode (child);
+				GenerateCode (children[i]);
 			}
 		}
 	}
 
+	int currentRegisterIndex = 1;
+
 	//--------------------------------------------------------------------------------
 
-	bool agaCodeGenerator::CheckNodesAreFinal (std::vector<agaASTNode *> children)
+	std::string ToString (int value)
 	{
-		for (int i = 0; i < children.size(); ++i)
-		{
-			agaASTNode *child = children[i];
+		std::stringstream sstream;
 
-			if (child->GetType() == ASTNodeType::BinaryOperation)
-			{
-				return false;
-			}
-		}
+		sstream << value;
 
-		return true;
+		return sstream.str();
 	}
 
+	void agaCodeGenerator::GenerateBinaryExpression (agaASTNode *node)
+	{
+		std::vector<agaASTNode *> children = node->GetChildren();
+
+		ASTNodeType leftType = children[0]->GetType();
+		ASTNodeType rightType = children[1]->GetType();
+
+		if (leftType == ASTNodeType::BinaryOperation)
+		{			
+			GenerateBinaryExpression (children[0]);
+			children[0]->GetAllocationBlock ().SetRegisterIndex (currentRegisterIndex-1);
+		}
+
+		if (rightType == ASTNodeType::BinaryOperation)
+		{
+			GenerateBinaryExpression (children[1]);
+			children[1]->GetAllocationBlock ().SetRegisterIndex (currentRegisterIndex-1);
+		}
+
+		std::string codeLine = "MOV #";
+
+		codeLine += ToString (currentRegisterIndex) + ", ";
+
+		if (leftType != ASTNodeType::BinaryOperation)
+		{
+			codeLine += children[0]->GetAllocationBlock().GetCode();
+		}
+		else
+		{
+			codeLine += "#" + ToString (children[0]->GetAllocationBlock().GetRegisterIndex ());
+		}
+
+		AddCodeLine (codeLine);
+
+		codeLine = node->GetAllocationBlock().GetCode();
+		codeLine += " #" + ToString (currentRegisterIndex) + ", ";
+
+		if (rightType != ASTNodeType::BinaryOperation)
+		{
+			codeLine += children[1]->GetAllocationBlock().GetCode();
+		}
+		else
+		{
+			codeLine += "#" + ToString (children[1]->GetAllocationBlock().GetRegisterIndex ());
+		}
+
+		AddCodeLine (codeLine);
+
+		++currentRegisterIndex;
+	}
 
 	//--------------------------------------------------------------------------------
+
 }

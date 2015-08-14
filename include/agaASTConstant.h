@@ -24,8 +24,7 @@ namespace aga
 		{
 			std::string line = "CONST " + m_Token.GetLiteral();
 
-			agaASTNode *node = new agaASTNode (ASTNodeType::Constant, line);
-			node->SetPrevious(parent);
+			agaASTNode *node = new agaASTNode (ASTNodeType::Constant, parent, line);
 
 			return node;
 		}

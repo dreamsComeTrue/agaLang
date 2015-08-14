@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "agaAllocationBlock.h"
+
 namespace aga
 {
 	enum ASTNodeType
@@ -17,21 +19,19 @@ namespace aga
 	class agaASTNode
 	{
 	public:
-		agaASTNode (ASTNodeType type, const std::string &code) : m_Type (type), m_Code (code), m_Previous (nullptr) { }
+		agaASTNode (ASTNodeType type, agaASTNode *parent, const std::string &code) :
+			m_Type (type),
+			m_AllocationBlock (code),
+			m_Parent (parent) { }
 
-		const std::string &GetCode () const
+		agaASTNode *GetParent ()
 		{
-			return m_Code;
+			return m_Parent;
 		}
 
-		agaASTNode *GetPrevious ()
+		void SetParent (agaASTNode *node)
 		{
-			return m_Previous;
-		}
-
-		void SetPrevious (agaASTNode *node)
-		{
-			m_Previous = node;
+			m_Parent = node;
 		}
 
 		std::vector<agaASTNode *> GetChildren ()
@@ -49,11 +49,16 @@ namespace aga
 			return m_Type;
 		}
 
+		agaAllocationBlock &GetAllocationBlock ()
+		{
+			return m_AllocationBlock;
+		}
+
 	protected:
 		ASTNodeType					m_Type;
-		agaASTNode 					*m_Previous;
+		agaAllocationBlock			m_AllocationBlock;
+		agaASTNode 					*m_Parent;
 		std::vector<agaASTNode *> 	m_Children;
-		std::string					m_Code;
 	};
 }
 

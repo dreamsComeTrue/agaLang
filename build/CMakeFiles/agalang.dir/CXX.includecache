@@ -29,6 +29,8 @@ string
 -
 vector
 -
+agaAllocationBlock.h
+../include/agaAllocationBlock.h
 
 ../include/agaASTVariable.h
 string
@@ -37,6 +39,10 @@ agaASTExpression.h
 ../include/agaASTExpression.h
 agaToken.h
 ../include/agaToken.h
+
+../include/agaAllocationBlock.h
+string
+-
 
 ../include/agaCodeGenerator.h
 string
@@ -89,6 +95,8 @@ string
 -
 
 /home/squall/projects/agaLang/src/agaCodeGenerator.cpp
+sstream
+-
 agaCodeGenerator.h
 /home/squall/projects/agaLang/src/agaCodeGenerator.h
 agaASTExpression.h

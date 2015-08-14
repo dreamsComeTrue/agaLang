@@ -19,7 +19,9 @@ namespace aga
 	protected:
 		void AddCodeLine (const std::string& codeLine);
 		void GenerateCode (agaASTNode* node);
-		bool CheckNodesAreFinal (std::vector<agaASTNode *> children);
+		int CheckBinaryNodesAreFinal (std::vector<agaASTNode *> children);
+		
+		void GenerateBinaryExpression (agaASTNode* node);
 		
 		std::string		m_Code;
 	};

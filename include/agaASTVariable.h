@@ -18,9 +18,7 @@ namespace aga
 		virtual agaASTNode *Evaluate (agaASTNode* parent)
 		{
 			std::string line = "VAR " + m_Token.GetLiteral();
-			agaASTNode *node = new agaASTNode (ASTNodeType::Variable, line);
-
-			node->SetPrevious(parent);
+			agaASTNode *node = new agaASTNode (ASTNodeType::Variable, parent, line);
 
 			return node;
 		}

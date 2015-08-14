@@ -75,13 +75,13 @@ namespace aga
 					break;
 			}
 
-			agaASTNode *node = new agaASTNode (ASTNodeType::BinaryOperation, code);
+			agaASTNode *node = new agaASTNode (ASTNodeType::BinaryOperation, parent, code);
 
 			agaASTNode *leftNode = m_Left->Evaluate (node);
 			agaASTNode *rightNode = m_Right->Evaluate (node);
 
-			leftNode->SetPrevious(node);
-			rightNode->SetPrevious(node);
+			leftNode->SetParent(node);
+			rightNode->SetParent(node);
 			node->AddChild (leftNode);
 			node->AddChild (rightNode);
 
