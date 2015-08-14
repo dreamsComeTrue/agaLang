@@ -2,6 +2,7 @@
 #define _AGA_COMPILER_H_
 
 #include <string>
+#include <memory>
 
 namespace aga
 {
@@ -18,8 +19,8 @@ namespace aga
 		void CompileSource (const std::string& code);
 		
 	private:
-		agaParser*			m_Parser;
-		agaCodeGenerator*	m_CodeGenerator;
+		std::unique_ptr<agaParser>			m_Parser;
+		std::unique_ptr<agaCodeGenerator>	m_CodeGenerator;
 	};
 }
 

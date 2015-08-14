@@ -1,7 +1,7 @@
 #ifndef _AGA_ASTEXPRESSION_H_
 #define _AGA_ASTEXPRESSION_H_
 
-#include "agaCodeGenerator.h"
+#include "agaASTNode.h"
 
 namespace aga
 {
@@ -24,7 +24,7 @@ namespace aga
 			return m_Type;
 		}
 			
-		virtual double Evaluate (agaCodeGenerator* codeGenerator) = 0;
+		virtual agaASTNode* Evaluate (agaASTNode* parent) = 0;
 		
 	protected:
 		ExpressionType	m_Type;

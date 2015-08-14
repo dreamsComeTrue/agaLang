@@ -7,41 +7,70 @@ namespace aga
 {
 	enum TokenType
 	{
-		TokenUnknown,
-		TokenInteger,						//	323
-		TokenFloat,							//	12.453
-		TokenString,						//	"abc"
-		TokenLeftParenthesis,				//	(
-		TokenRightParenthesis,				//	)
-		TokenLeftBracket,					//	[
-		TokenRightBracket,					//	]
-		TokenLeftBrace,						//	{
-		TokenRightBrace,					//	}
-		TokenIdentifier,					//	hello
-		TokenColon,							//	:
-		TokenSemicolon,						//	;
-		TokenPlus,							//	+
-		TokenMinus,							//	-
-		TokenMultiply,						//	*
-		TokenDivide,						//	/
-		TokenEquals,						//	=
-		TokenPound							//	#
+	    TokenUnknown,
+	    TokenInteger,						//	323
+	    TokenFloat,							//	12.453
+	    TokenString,						//	"abc"
+	    TokenLeftParenthesis,				//	(
+	    TokenRightParenthesis,				//	)
+	    TokenLeftBracket,					//	[
+	    TokenRightBracket,					//	]
+	    TokenLeftBrace,						//	{
+	    TokenRightBrace,					//	}
+	    TokenIdentifier,					//	hello
+	    TokenColon,							//	:
+	    TokenSemicolon,						//	;
+	    TokenPlus,							//	+
+	    TokenMinus,							//	-
+	    TokenMultiply,						//	*
+	    TokenDivide,						//	/
+	    TokenEquals,						//	=
+	    TokenPound							//	#
 	};
-	
-	extern std::string TokenNames[];
-	
+
+	struct TokenWord
+	{
+		const char *word;
+		TokenType   tokenType;
+	};
+
+	TokenWord const tokenWords[] =
+	{
+		{"Unknown"       , TokenUnknown},
+		{"TokenInteger"       , TokenInteger},
+		{"TokenFloat"       , TokenFloat},
+		{"String"       , TokenString},
+		{"LeftParenthesis"       , TokenLeftParenthesis},
+		{"RightParenthesis"       , TokenRightParenthesis},
+		{"LeftBracket"       , TokenLeftBracket},
+		{"RightBracket"       , TokenRightBracket},
+		{"LeftBrace"       , TokenLeftBrace},
+		{"RightBrace"       , TokenRightBrace},
+		{"Identifier"       , TokenIdentifier},
+		{"Colon"       , TokenColon},
+		{"Semicolon"       , TokenSemicolon},
+		{"Plus"       , TokenPlus},
+		{"Minus"       , TokenMinus},
+		{"Multiply"       , TokenMultiply},
+		{"Divide"       , TokenDivide},
+		{"Equals"       , TokenEquals},
+		{"Pound"       , TokenPound},
+	};
+
+	int const numTokenWords = sizeof (tokenWords) /sizeof (TokenWord);
+
 	class agaToken
 	{
 	public:
 		agaToken ();
-		agaToken (const std::string& literal, TokenType type, long line, long beginColumn, long endColumn, long posiiton);
-		
+		agaToken (const std::string &literal, TokenType type, long line, long beginColumn, long endColumn, long posiiton);
+
 		TokenType GetType () const;
-		
-		const std::string& GetLiteral () const;
-		
+
+		const std::string &GetLiteral () const;
+
 		void Print ();
-		
+
 	private:
 		std::string	m_Literal;
 		TokenType	m_Type;

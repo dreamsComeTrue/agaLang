@@ -17,10 +17,18 @@ agaASTExpression.h
 ../include/agaASTExpression.h
 agaToken.h
 ../include/agaToken.h
+agaTypeInfo.h
+../include/agaTypeInfo.h
 
 ../include/agaASTExpression.h
-agaCodeGenerator.h
-../include/agaCodeGenerator.h
+agaASTNode.h
+../include/agaASTNode.h
+
+../include/agaASTNode.h
+string
+-
+vector
+-
 
 ../include/agaASTVariable.h
 string
@@ -33,9 +41,13 @@ agaToken.h
 ../include/agaCodeGenerator.h
 string
 -
+vector
+-
 
 ../include/agaCompiler.h
 string
+-
+memory
 -
 
 ../include/agaConstants.h
@@ -45,6 +57,8 @@ string
 -
 exception
 -
+
+../include/agaLang.h
 
 ../include/agaLexer.h
 string
@@ -70,11 +84,21 @@ agaASTExpression.h
 string
 -
 
+../include/agaTypeInfo.h
+string
+-
+
 /home/squall/projects/agaLang/src/agaCodeGenerator.cpp
 agaCodeGenerator.h
 /home/squall/projects/agaLang/src/agaCodeGenerator.h
+agaASTExpression.h
+/home/squall/projects/agaLang/src/agaASTExpression.h
 
 /home/squall/projects/agaLang/src/agaCompiler.cpp
+memory
+-
+agaLang.h
+/home/squall/projects/agaLang/src/agaLang.h
 agaCompiler.h
 /home/squall/projects/agaLang/src/agaCompiler.h
 agaCodeGenerator.h
@@ -85,12 +109,18 @@ agaLogger.h
 /home/squall/projects/agaLang/src/agaLogger.h
 
 /home/squall/projects/agaLang/src/agaException.cpp
+string
+-
+cstdarg
+-
 agaException.h
 /home/squall/projects/agaLang/src/agaException.h
 
 /home/squall/projects/agaLang/src/agaLexer.cpp
 cctype
 -
+agaConstants.h
+/home/squall/projects/agaLang/src/agaConstants.h
 agaLexer.h
 /home/squall/projects/agaLang/src/agaLexer.h
 agaLogger.h
@@ -127,6 +157,10 @@ agaException.h
 /home/squall/projects/agaLang/src/agaParser.cpp
 cstdlib
 -
+string
+-
+agaConstants.h
+/home/squall/projects/agaLang/src/agaConstants.h
 agaParser.h
 /home/squall/projects/agaLang/src/agaParser.h
 agaLexer.h

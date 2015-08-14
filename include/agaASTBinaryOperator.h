@@ -16,7 +16,7 @@ namespace aga
 			m_Right (right) { }
 
 
-		virtual double Evaluate (agaCodeGenerator* codeGenerator)
+		virtual agaASTNode *Evaluate (agaASTNode *parent)
 		{
 			long leftLong;
 			double leftDouble;
@@ -28,50 +28,64 @@ namespace aga
 
 			if (m_Left->GetType() == IntegerExpression)
 			{
-				leftLong = ( (agaASTConstant*) m_Left)->GetLongValue();
+				//	leftLong = ( (agaASTConstant*) m_Left)->GetLongValue();
 				leftType = IntegerExpression;
 			}
 			else
 				if (m_Left->GetType() == FloatExpression)
 				{
-					leftDouble = ( (agaASTConstant*) m_Left)->GetDoubleValue();
+					//		leftDouble = ( (agaASTConstant*) m_Left)->GetDoubleValue();
 					leftType = FloatExpression;
 				}
 
 			if (m_Right->GetType() == IntegerExpression)
 			{
-				rightLong = ( (agaASTConstant*) m_Right)->GetLongValue();
+				//	rightLong = ( (agaASTConstant*) m_Right)->GetLongValue();
 				rightType = IntegerExpression;
 			}
 			else
 				if (m_Right->GetType() == FloatExpression)
 				{
-					rightDouble = ( (agaASTConstant*) m_Right)->GetDoubleValue();
+					//		rightDouble = ( (agaASTConstant*) m_Right)->GetDoubleValue();
 					rightType = FloatExpression;
 				}
+
+			std::string code = "";
 
 			switch (m_Operator)
 			{
 				case '*':
-					codeGenerator->AddCodeLine("MUL");
-					return m_Left->Evaluate (codeGenerator) * m_Right->Evaluate (codeGenerator);
+					code = "MUL";
+					break;
 
 				case '+':
-					codeGenerator->AddCodeLine("ADD");
-					return m_Left->Evaluate (codeGenerator) + m_Right->Evaluate (codeGenerator);
+					code = "ADD";
+					break;
 
 				case '-':
-					codeGenerator->AddCodeLine("SUB");
-					return m_Left->Evaluate (codeGenerator) - m_Right->Evaluate (codeGenerator);
+					code = "SUB";
+					break;
 
 				case '/':
-					codeGenerator->AddCodeLine("DIV");
-					return m_Left->Evaluate (codeGenerator) / m_Right->Evaluate (codeGenerator);
-					
+					code = "DIV";
+					break;
+
 				default
 						:
 					break;
 			}
+
+			agaASTNode *node = new agaASTNode (ASTNodeType::BinaryOperation, code);
+
+			agaASTNode *leftNode = m_Left->Evaluate (node);
+			agaASTNode *rightNode = m_Right->Evaluate (node);
+
+			leftNode->SetPrevious(node);
+			rightNode->SetPrevious(node);
+			node->AddChild (leftNode);
+			node->AddChild (rightNode);
+
+			return node;
 		}
 
 	private:

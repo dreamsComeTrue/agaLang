@@ -14,13 +14,15 @@ namespace aga
 		agaASTVariable (agaToken token) :
 			agaASTExpression (VariableExpression),
 			m_Token (token)	{ }
-			
-		virtual double Evaluate (agaCodeGenerator* codeGenerator)
+
+		virtual agaASTNode *Evaluate (agaASTNode* parent)
 		{
 			std::string line = "VAR " + m_Token.GetLiteral();
-			
-			codeGenerator->AddCodeLine(line);
-			return 0;
+			agaASTNode *node = new agaASTNode (ASTNodeType::Variable, line);
+
+			node->SetPrevious(parent);
+
+			return node;
 		}
 
 	private:

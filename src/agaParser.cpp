@@ -1,5 +1,7 @@
 #include <cstdlib>
+#include <string>
 
+#include "agaConstants.h"
 #include "agaParser.h"
 #include "agaLexer.h"
 #include "agaLogger.h"
@@ -29,19 +31,18 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
-	agaASTExpression* agaParser::Parse()
+	agaASTExpression *agaParser::Parse()
 	{
 		m_CurrentToken = m_Lexer->GetNextToken();
 
-		agaASTExpression* expression = ParseExpression();
-		
+		agaASTExpression *expression = ParseExpression();
+
 		if (m_CurrentToken.GetType() != TokenUnknown)
 		{
-			throw agaException ("Unexpected token: " + TokenNames[m_CurrentToken.GetType()] + "<" + m_CurrentToken.GetLiteral()
-			+ "> at EOF");
+			throw agaException (UNEXPECTED_TOKEN_EOF, tokenWords[m_CurrentToken.GetType()].word, m_CurrentToken.GetLiteral().c_str());
 		}
-		
-		return expression;		
+
+		return expression;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -54,7 +55,7 @@ namespace aga
 	//--------------------------------------------------------------------------------
 
 	//	expression = ["+"|"-"] term {("+"|"-") term} .
-	agaASTExpression* agaParser::ParseExpression ()
+	agaASTExpression *agaParser::ParseExpression ()
 	{
 		//	Unary plus|minus
 		if (m_CurrentToken.GetType () == TokenPlus || m_CurrentToken.GetType () == TokenMinus)
@@ -62,54 +63,54 @@ namespace aga
 			m_CurrentToken = m_Lexer->GetNextToken();
 		}
 
-		agaASTExpression* leftTermExpression = ParseTerm ();
+		agaASTExpression *leftTermExpression = ParseTerm ();
 
 		while (m_CurrentToken.GetType () == TokenPlus || m_CurrentToken.GetType () == TokenMinus)
 		{
-			char op = m_CurrentToken.GetLiteral().at(0);
-			
+			char op = m_CurrentToken.GetLiteral().at (0);
+
 			m_CurrentToken = m_Lexer->GetNextToken();
 
-			agaASTExpression* rightTermExpression = ParseTerm ();
-			
-			leftTermExpression = new agaASTBinaryOperator (op, leftTermExpression, rightTermExpression);	
+			agaASTExpression *rightTermExpression = ParseTerm ();
+
+			leftTermExpression = new agaASTBinaryOperator (op, leftTermExpression, rightTermExpression);
 		}
-		
+
 		return leftTermExpression;
 	}
 
 	//--------------------------------------------------------------------------------
 
 	//	term = factor {("*"|"/") factor} .
-	agaASTExpression* agaParser::ParseTerm ()
+	agaASTExpression *agaParser::ParseTerm ()
 	{
-		agaASTExpression* leftFactorExpression = ParseFactor ();
+		agaASTExpression *leftFactorExpression = ParseFactor ();
 
 		while (m_CurrentToken.GetType () == TokenMultiply || m_CurrentToken.GetType () == TokenDivide)
 		{
-			char op = m_CurrentToken.GetLiteral().at(0);
-			
+			char op = m_CurrentToken.GetLiteral().at (0);
+
 			m_CurrentToken = m_Lexer->GetNextToken();
 
-			agaASTExpression* rightFactorExpression  = ParseFactor();
-			
-			leftFactorExpression = new agaASTBinaryOperator (op, leftFactorExpression, rightFactorExpression);			
+			agaASTExpression *rightFactorExpression  = ParseFactor();
+
+			leftFactorExpression = new agaASTBinaryOperator (op, leftFactorExpression, rightFactorExpression);
 		}
-		
+
 		return leftFactorExpression;
 	}
 
 	//--------------------------------------------------------------------------------
 
 	//	 factor =
-	//		 ident
+	//		 | ident
 	//		 | integer
 	//		 | float
 	//		 | "(" expression ")" .
-	agaASTExpression* agaParser::ParseFactor ()
+	agaASTExpression *agaParser::ParseFactor ()
 	{
-		agaASTExpression* result;
-		
+		agaASTExpression *result;
+
 		if (AcceptToken (TokenIdentifier))
 		{
 			result = new agaASTVariable (m_CurrentToken);
@@ -118,32 +119,32 @@ namespace aga
 			if (AcceptToken (TokenInteger))
 			{
 				long value = atol (m_CurrentToken.GetLiteral ().c_str ());
-				
+
 				result = new agaASTConstant (m_CurrentToken, value);
 			}
 			else
 				if (AcceptToken (TokenFloat))
 				{
 					double value = atof (m_CurrentToken.GetLiteral ().c_str ());
-					
+
 					result = new agaASTConstant (m_CurrentToken, value);
 				}
 				else
 					if (AcceptToken (TokenLeftParenthesis))
 					{
 						m_CurrentToken = m_Lexer->GetNextToken ();
-						
+
 						result = ParseExpression ();
 
 						AssertToken (TokenRightParenthesis);
 					}
 					else
 					{
-						throw agaException ("Unexpected token: " + TokenNames[m_CurrentToken.GetType()]);
+						throw agaException (UNEXPECTED_TOKEN, tokenWords[m_CurrentToken.GetType()].word);
 					}
 
 		m_CurrentToken = m_Lexer->GetNextToken ();
-		
+
 		return result;
 	}
 
@@ -156,7 +157,7 @@ namespace aga
 			return true;
 		}
 
-		throw agaException ("Unexpected token: " + TokenNames[m_CurrentToken.GetType()] + ", expecting: " + TokenNames[tokenToCheck]);
+		throw agaException (UNEXPECTED_TOKEN_EXPECTING, tokenWords[m_CurrentToken.GetType()].word, tokenWords[tokenToCheck].word);
 
 		return false;
 	}
@@ -167,9 +168,9 @@ namespace aga
 	{
 		if (m_CurrentToken.GetType() == TokenUnknown)
 		{
-			throw agaException ("Unexpected end of token stream!");
+			throw agaException (END_OF_TOKEN_STREAM);
 		}
-		
+
 		if (m_CurrentToken.GetType() == compareToken)
 		{
 			return true;
@@ -180,3 +181,4 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 }
+

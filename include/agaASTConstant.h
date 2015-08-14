@@ -3,6 +3,7 @@
 
 #include "agaASTExpression.h"
 #include "agaToken.h"
+#include "agaTypeInfo.h"
 
 namespace aga
 {
@@ -12,46 +13,26 @@ namespace aga
 		agaASTConstant (agaToken token, long value) :
 			agaASTExpression (IntegerExpression),
 			m_Token (token),
-			m_LongValue (value) { }
+			m_TypeInfo (value) { }
 
 		agaASTConstant (agaToken token, double value) :
 			agaASTExpression (FloatExpression),
 			m_Token (token),
-			m_DoubleValue (value) { }
+			m_TypeInfo (value) { }
 
-		virtual double Evaluate (agaCodeGenerator* codeGenerator)
+		virtual agaASTNode *Evaluate (agaASTNode *parent)
 		{
 			std::string line = "CONST " + m_Token.GetLiteral();
-			codeGenerator->AddCodeLine(line);
-			
-			if (m_Type == IntegerExpression)
-			{
-				return m_LongValue;
-			}
-			else if (m_Type == FloatExpression)
-			{
-				return m_DoubleValue;
-			}
-		}
-		
-		long GetLongValue ()
-		{
-			return m_LongValue;
-		}
-		
-		double GetDoubleValue ()
-		{
-			return m_DoubleValue;
+
+			agaASTNode *node = new agaASTNode (ASTNodeType::Constant, line);
+			node->SetPrevious(parent);
+
+			return node;
 		}
 
 	private:
 		agaToken		m_Token;
-		
-		union
-		{
-			long		m_LongValue;
-			double		m_DoubleValue;
-		};
+		agaTypeInfo		m_TypeInfo;
 	};
 }
 

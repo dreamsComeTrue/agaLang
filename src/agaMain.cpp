@@ -28,7 +28,7 @@ int main (int argc, char **argv)
 
 	if (!stream)
 	{
-		agaLogger::log (AGALANG_FILE_OPEN_ERROR); 
+		agaLogger::log (FILE_OPEN_ERROR); 
 		
 		return -1;
 	}
@@ -38,6 +38,7 @@ int main (int argc, char **argv)
 	stream.seekg (0, std::ios::end);   
 	source.reserve (stream.tellg ());
 	stream.seekg (0, std::ios::beg);
+	
 	source.assign ((std::istreambuf_iterator<char> (stream)), std::istreambuf_iterator<char> ());
 	stream.close ();
 	

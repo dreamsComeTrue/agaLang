@@ -1,5 +1,6 @@
 #include <cctype>
 
+#include "agaConstants.h"
 #include "agaLexer.h"
 #include "agaLogger.h"
 #include "agaException.h"
@@ -115,7 +116,7 @@ namespace aga
 
 							if (m_CurrentCharacter == 0)
 							{
-								throw agaException ("Lexing error: unexpected end of string");
+								throw agaException (LEXER_END_OF_TOKEN_STREAM);
 							}
 						}
 						while (m_CurrentCharacter != '"');
@@ -226,7 +227,7 @@ namespace aga
 
 						if (end - begin == 1)
 						{
-							throw agaException ("Lexing error: missing fraction digits");
+							throw agaException (LEXER_MISSING_FRACTION_DIGITS);
 						}
 
 						std::string sub = m_Source.substr (begin, end - begin);

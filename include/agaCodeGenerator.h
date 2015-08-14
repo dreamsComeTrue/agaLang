@@ -2,19 +2,25 @@
 #define _AGA_CODEGENERATOR_H_
 
 #include <string>
+#include <vector>
 
 namespace aga
 {
+	class agaASTExpression;
+	class agaASTNode;
+	
 	class agaCodeGenerator
 	{
 	public:
 		agaCodeGenerator ();
 		
-		void AddCodeLine (const std::string& codeLine);
-		
-		const std::string& GetCode () const;
+		const std::string& GenerateCode (agaASTExpression* expression);
 		
 	protected:
+		void AddCodeLine (const std::string& codeLine);
+		void GenerateCode (agaASTNode* node);
+		bool CheckNodesAreFinal (std::vector<agaASTNode *> children);
+		
 		std::string		m_Code;
 	};
 }

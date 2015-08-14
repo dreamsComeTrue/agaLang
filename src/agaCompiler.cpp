@@ -1,3 +1,6 @@
+#include <memory>
+
+#include "agaLang.h"
 #include "agaCompiler.h"
 #include "agaCodeGenerator.h"
 #include "agaParser.h"
@@ -6,42 +9,33 @@
 namespace aga
 {
 	//--------------------------------------------------------------------------------
-		
-	agaCompiler::agaCompiler()
+
+	agaCompiler::agaCompiler() :
+		m_Parser (nullptr),
+		m_CodeGenerator (nullptr)
 	{
 	}
-	
+
 	//--------------------------------------------------------------------------------
-	
+
 	agaCompiler::~agaCompiler()
 	{
-		if (m_CodeGenerator != NULL)
-		{
-			delete m_CodeGenerator;
-			m_CodeGenerator = NULL;
-		}
-		
-		if (m_Parser != NULL)
-		{
-			delete m_Parser;
-			m_Parser = NULL;
-		}
 	}
-	
+
 	//--------------------------------------------------------------------------------
-	
+
 	void agaCompiler::CompileSource (const std::string &code)
 	{
-		m_Parser = new agaParser (code);
+		m_Parser = std::unique_ptr<agaParser> (new agaParser (code));
+
+		agaASTExpression *expression = m_Parser->Parse ();
+
+		m_CodeGenerator = std::unique_ptr<agaCodeGenerator> (new agaCodeGenerator ());
 		
-		agaASTExpression* expression = m_Parser->Parse ();
-		
-		m_CodeGenerator = new agaCodeGenerator ();
-		
-		expression->Evaluate (m_CodeGenerator);
-		
-		agaLogger::log (m_CodeGenerator->GetCode ());
+		std::string generatedCode = m_CodeGenerator.get()->GenerateCode(expression);
+
+		agaLogger::log (generatedCode);
 	}
-	
+
 	//--------------------------------------------------------------------------------
 }

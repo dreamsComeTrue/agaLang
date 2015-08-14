@@ -9,3 +9,5 @@ add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(include)
 include_directories(include)
+
+ADD_DEFINITIONS(-std=c++0x)
