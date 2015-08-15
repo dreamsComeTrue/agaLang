@@ -4,26 +4,34 @@
 #include <string>
 #include <vector>
 
+#include "agaInstructions.h"
+
 namespace aga
 {
 	class agaASTExpression;
 	class agaASTNode;
+	class agaASTProgram;
 	
 	class agaCodeGenerator
 	{
 	public:
 		agaCodeGenerator ();
 		
-		const std::string& GenerateCode (agaASTExpression* expression);
+		const std::vector<std::string>& GenerateCode (agaASTProgram* program);
 		
 	protected:
+		const std::vector<std::string> &GenerateCode (agaASTNode *node);
+		
 		void AddCodeLine (const std::string& codeLine);
-		void GenerateCode (agaASTNode* node);
-		int CheckBinaryNodesAreFinal (std::vector<agaASTNode *> children);
 		
 		void GenerateBinaryExpression (agaASTNode* node);
 		
-		std::string		m_Code;
+		void EmitInstruction (InstructionType instruction, int dstRegisterIndex, int srcRegisterIndex);
+		void EmitInstruction (InstructionType instruction, int registerIndex, agaASTNode* node);
+		
+		InstructionType GetInstructionTypeFromCode (const std::string& code);
+		
+		std::vector<std::string> m_Code;
 	};
 }
 

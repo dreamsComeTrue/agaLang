@@ -5,34 +5,27 @@
 #include <vector>
 
 #include "agaAllocationBlock.h"
+#include "agaToken.h"
 
 namespace aga
 {
 	enum ASTNodeType
 	{
-	    Program,
-	    Constant,
-	    Variable,
-	    BinaryOperation
+	    ProgramNode,
+	    ConstantNode,
+	    VariableNode,
+	    ExpressionNode,
+	    BinaryOperationNode
 	};
 
 	class agaASTNode
 	{
 	public:
-		agaASTNode (ASTNodeType type, agaASTNode *parent, const std::string &code) :
-			m_Type (type),
-			m_AllocationBlock (code),
-			m_Parent (parent) { }
+		agaASTNode (ASTNodeType type) :
+			m_Type (type) { }
 
-		agaASTNode *GetParent ()
-		{
-			return m_Parent;
-		}
-
-		void SetParent (agaASTNode *node)
-		{
-			m_Parent = node;
-		}
+		agaASTNode (ASTNodeType type, agaToken token) :
+			m_Type (type), m_Token (token) { }
 
 		std::vector<agaASTNode *> GetChildren ()
 		{
@@ -54,10 +47,17 @@ namespace aga
 			return m_AllocationBlock;
 		}
 
+		const agaToken &GetToken () const
+		{
+			return m_Token;
+		}
+
+		virtual void Evaluate () = 0;
+
 	protected:
 		ASTNodeType					m_Type;
+		agaToken					m_Token;
 		agaAllocationBlock			m_AllocationBlock;
-		agaASTNode 					*m_Parent;
 		std::vector<agaASTNode *> 	m_Children;
 	};
 }

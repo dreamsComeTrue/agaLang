@@ -4,11 +4,12 @@
 #include <string>
 
 #include "agaToken.h"
-#include "agaASTExpression.h"
 
 namespace aga
 {
 	class agaLexer;
+	class agaASTNode;
+	class agaASTProgram;
 	
 	class agaParser
 	{
@@ -16,15 +17,15 @@ namespace aga
 		agaParser (const std::string& source);
 		~agaParser ();
 		
-		agaASTExpression* Parse ();
+		agaASTProgram* Parse ();
 		
 	private:
-		void ParseAssignment ();
-		
 		//	Internal
-		agaASTExpression* ParseExpression ();
-		agaASTExpression* ParseTerm ();
-		agaASTExpression* ParseFactor ();				
+		agaASTProgram* ParseProgram ();
+		agaASTNode* ParseExpression ();
+		agaASTNode* ParseAssignment ();
+		agaASTNode* ParseTerm ();
+		agaASTNode* ParseFactor ();				
 		
 		bool AcceptToken (TokenType compareToken);
 		bool AssertToken (TokenType tokenToCheck);

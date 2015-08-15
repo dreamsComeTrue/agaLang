@@ -11,6 +11,8 @@ agaASTExpression.h
 ../include/agaASTExpression.h
 agaASTConstant.h
 ../include/agaASTConstant.h
+agaInstructions.h
+../include/agaInstructions.h
 
 ../include/agaASTConstant.h
 agaASTExpression.h
@@ -31,6 +33,14 @@ vector
 -
 agaAllocationBlock.h
 ../include/agaAllocationBlock.h
+agaToken.h
+../include/agaToken.h
+
+../include/agaASTProgram.h
+vector
+-
+agaASTNode.h
+../include/agaASTNode.h
 
 ../include/agaASTVariable.h
 string
@@ -49,6 +59,8 @@ string
 -
 vector
 -
+agaInstructions.h
+../include/agaInstructions.h
 
 ../include/agaCompiler.h
 string
@@ -62,6 +74,10 @@ memory
 string
 -
 exception
+-
+
+../include/agaInstructions.h
+string
 -
 
 ../include/agaLang.h
@@ -83,8 +99,6 @@ string
 -
 agaToken.h
 ../include/agaToken.h
-agaASTExpression.h
-../include/agaASTExpression.h
 
 ../include/agaToken.h
 string
@@ -101,6 +115,8 @@ agaCodeGenerator.h
 /home/squall/projects/agaLang/src/agaCodeGenerator.h
 agaASTExpression.h
 /home/squall/projects/agaLang/src/agaASTExpression.h
+agaASTProgram.h
+/home/squall/projects/agaLang/src/agaASTProgram.h
 
 /home/squall/projects/agaLang/src/agaCompiler.cpp
 memory
@@ -115,6 +131,8 @@ agaParser.h
 /home/squall/projects/agaLang/src/agaParser.h
 agaLogger.h
 /home/squall/projects/agaLang/src/agaLogger.h
+agaASTProgram.h
+/home/squall/projects/agaLang/src/agaASTProgram.h
 
 /home/squall/projects/agaLang/src/agaException.cpp
 string
@@ -183,6 +201,8 @@ agaASTVariable.h
 /home/squall/projects/agaLang/src/agaASTVariable.h
 agaASTBinaryOperator.h
 /home/squall/projects/agaLang/src/agaASTBinaryOperator.h
+agaASTProgram.h
+/home/squall/projects/agaLang/src/agaASTProgram.h
 
 /home/squall/projects/agaLang/src/agaToken.cpp
 agaToken.h

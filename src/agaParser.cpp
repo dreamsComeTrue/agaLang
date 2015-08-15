@@ -9,6 +9,7 @@
 #include "agaASTConstant.h"
 #include "agaASTVariable.h"
 #include "agaASTBinaryOperator.h"
+#include "agaASTProgram.h"
 
 namespace aga
 {
@@ -31,31 +32,47 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
-	agaASTExpression *agaParser::Parse()
+	agaASTProgram *agaParser::Parse()
 	{
 		m_CurrentToken = m_Lexer->GetNextToken();
 
-		agaASTExpression *expression = ParseExpression();
+		agaASTProgram *program = ParseProgram();
 
 		if (m_CurrentToken.GetType() != TokenUnknown)
 		{
 			throw agaException (UNEXPECTED_TOKEN_EOF, tokenWords[m_CurrentToken.GetType()].word, m_CurrentToken.GetLiteral().c_str());
 		}
 
-		return expression;
+		return program;
+	}
+	
+	//--------------------------------------------------------------------------------
+	
+	agaASTProgram *agaParser::ParseProgram ()
+	{
+		agaASTProgram* program = new agaASTProgram ();
+		
+		while (m_CurrentToken.GetType() != TokenUnknown)
+		{
+			agaASTNode* expression = ParseExpression();
+			
+			program->AddStatement (expression);			
+		}
+		
+		return program;
 	}
 
 	//--------------------------------------------------------------------------------
 
-	void agaParser::ParseAssignment ()
+	agaASTNode* agaParser::ParseAssignment ()
 	{
-
+		return nullptr;
 	}
 
 	//--------------------------------------------------------------------------------
 
 	//	expression = ["+"|"-"] term {("+"|"-") term} .
-	agaASTExpression *agaParser::ParseExpression ()
+	agaASTNode *agaParser::ParseExpression ()
 	{
 		//	Unary plus|minus
 		if (m_CurrentToken.GetType () == TokenPlus || m_CurrentToken.GetType () == TokenMinus)
@@ -63,17 +80,17 @@ namespace aga
 			m_CurrentToken = m_Lexer->GetNextToken();
 		}
 
-		agaASTExpression *leftTermExpression = ParseTerm ();
+		agaASTNode *leftTermExpression = ParseTerm ();
 
 		while (m_CurrentToken.GetType () == TokenPlus || m_CurrentToken.GetType () == TokenMinus)
 		{
-			char op = m_CurrentToken.GetLiteral().at (0);
+			agaToken binaryOperationToken = m_CurrentToken;
 
 			m_CurrentToken = m_Lexer->GetNextToken();
 
-			agaASTExpression *rightTermExpression = ParseTerm ();
+			agaASTNode *rightTermExpression = ParseTerm ();
 
-			leftTermExpression = new agaASTBinaryOperator (op, leftTermExpression, rightTermExpression);
+			leftTermExpression = new agaASTBinaryOperator (binaryOperationToken, leftTermExpression, rightTermExpression);
 		}
 
 		return leftTermExpression;
@@ -82,19 +99,19 @@ namespace aga
 	//--------------------------------------------------------------------------------
 
 	//	term = factor {("*"|"/") factor} .
-	agaASTExpression *agaParser::ParseTerm ()
+	agaASTNode *agaParser::ParseTerm ()
 	{
-		agaASTExpression *leftFactorExpression = ParseFactor ();
+		agaASTNode *leftFactorExpression = ParseFactor ();
 
 		while (m_CurrentToken.GetType () == TokenMultiply || m_CurrentToken.GetType () == TokenDivide)
 		{
-			char op = m_CurrentToken.GetLiteral().at (0);
+			agaToken binaryOperationToken = m_CurrentToken;
 
 			m_CurrentToken = m_Lexer->GetNextToken();
 
-			agaASTExpression *rightFactorExpression  = ParseFactor();
+			agaASTNode *rightFactorExpression  = ParseFactor();
 
-			leftFactorExpression = new agaASTBinaryOperator (op, leftFactorExpression, rightFactorExpression);
+			leftFactorExpression = new agaASTBinaryOperator (binaryOperationToken, leftFactorExpression, rightFactorExpression);
 		}
 
 		return leftFactorExpression;
@@ -107,9 +124,9 @@ namespace aga
 	//		 | integer
 	//		 | float
 	//		 | "(" expression ")" .
-	agaASTExpression *agaParser::ParseFactor ()
+	agaASTNode *agaParser::ParseFactor ()
 	{
-		agaASTExpression *result;
+		agaASTNode *result;
 
 		if (AcceptToken (TokenIdentifier))
 		{

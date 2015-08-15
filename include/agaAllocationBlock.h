@@ -8,19 +8,24 @@ namespace aga
 	class agaAllocationBlock
 	{
 	public:
-		agaAllocationBlock (const std::string &code) :
-			m_Code (code), m_RegisterIndex (-1) {}
+		agaAllocationBlock () :
+			m_Code (""), m_RegisterIndex (-1) {}
 
 		const std::string &GetCode () const
 		{
 			return m_Code;
 		}
 
+		void SetCode (const std::string &code)
+		{
+			m_Code = code;
+		}
+
 		int GetRegisterIndex () const
 		{
 			return m_RegisterIndex;
 		}
-		
+
 		void SetRegisterIndex (int index)
 		{
 			m_RegisterIndex = index;

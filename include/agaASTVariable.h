@@ -12,19 +12,16 @@ namespace aga
 	{
 	public:
 		agaASTVariable (agaToken token) :
-			agaASTExpression (VariableExpression),
-			m_Token (token)	{ }
+			agaASTExpression (VariableNode, Variable, token)	{ }
 
-		virtual agaASTNode *Evaluate (agaASTNode* parent)
+		virtual void Evaluate ()
 		{
 			std::string line = "VAR " + m_Token.GetLiteral();
-			agaASTNode *node = new agaASTNode (ASTNodeType::Variable, parent, line);
-
-			return node;
+			
+			m_AllocationBlock.SetCode(line);
 		}
 
 	private:
-		agaToken		m_Token;
 	};
 }
 

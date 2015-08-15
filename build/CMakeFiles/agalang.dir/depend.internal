@@ -4,15 +4,19 @@
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o
  ../include/agaASTExpression.h
  ../include/agaASTNode.h
+ ../include/agaASTProgram.h
  ../include/agaAllocationBlock.h
  ../include/agaCodeGenerator.h
+ ../include/agaInstructions.h
+ ../include/agaToken.h
  /home/squall/projects/agaLang/src/agaCodeGenerator.cpp
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o
- ../include/agaASTExpression.h
  ../include/agaASTNode.h
+ ../include/agaASTProgram.h
  ../include/agaAllocationBlock.h
  ../include/agaCodeGenerator.h
  ../include/agaCompiler.h
+ ../include/agaInstructions.h
  ../include/agaLang.h
  ../include/agaLogger.h
  ../include/agaParser.h
@@ -42,10 +46,12 @@ CMakeFiles/agalang.dir/src/agaParser.cpp.o
  ../include/agaASTConstant.h
  ../include/agaASTExpression.h
  ../include/agaASTNode.h
+ ../include/agaASTProgram.h
  ../include/agaASTVariable.h
  ../include/agaAllocationBlock.h
  ../include/agaConstants.h
  ../include/agaException.h
+ ../include/agaInstructions.h
  ../include/agaLexer.h
  ../include/agaLogger.h
  ../include/agaParser.h

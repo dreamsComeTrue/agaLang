@@ -7,25 +7,28 @@ namespace aga
 {
 	enum ExpressionType
 	{
-		IntegerExpression,
-		FloatExpression,
-		StringExpression,
-		VariableExpression
+	    Assignment,
+	    BinaryOperation,
+	    IntegerConst,
+	    FloatConst,
+	    StringConst,
+	    Variable
 	};
-	
-	class agaASTExpression
+
+	class agaASTExpression : public agaASTNode
 	{
 	public:
-		agaASTExpression (ExpressionType type) :
-			m_Type (type) { }
-			
-		ExpressionType GetType ()
+		agaASTExpression (ASTNodeType nodeType, ExpressionType expressionType, agaToken token) :
+			agaASTNode (nodeType, token),
+			m_Type (expressionType) { }
+
+		ExpressionType GetExpressionType ()
 		{
 			return m_Type;
 		}
-			
-		virtual agaASTNode* Evaluate (agaASTNode* parent) = 0;
-		
+
+		virtual void Evaluate () = 0;
+
 	protected:
 		ExpressionType	m_Type;
 	};

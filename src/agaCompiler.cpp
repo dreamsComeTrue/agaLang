@@ -5,6 +5,7 @@
 #include "agaCodeGenerator.h"
 #include "agaParser.h"
 #include "agaLogger.h"
+#include "agaASTProgram.h"
 
 namespace aga
 {
@@ -28,13 +29,16 @@ namespace aga
 	{
 		m_Parser = std::unique_ptr<agaParser> (new agaParser (code));
 
-		agaASTExpression *expression = m_Parser->Parse ();
+		agaASTProgram *programNode = m_Parser->Parse ();
 
 		m_CodeGenerator = std::unique_ptr<agaCodeGenerator> (new agaCodeGenerator ());
-		
-		std::string generatedCode = m_CodeGenerator.get()->GenerateCode(expression);
 
-		agaLogger::log (generatedCode);
+		std::vector<std::string> generatedCode = m_CodeGenerator.get()->GenerateCode (programNode);
+
+		for (const std::string& lineOfCode : generatedCode)
+		{
+			agaLogger::log (lineOfCode);
+		}
 	}
 
 	//--------------------------------------------------------------------------------

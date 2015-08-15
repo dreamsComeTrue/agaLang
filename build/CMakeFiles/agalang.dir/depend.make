@@ -3,15 +3,19 @@
 
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTExpression.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTNode.h
+CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTProgram.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaAllocationBlock.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaCodeGenerator.h
+CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaInstructions.h
+CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaToken.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../src/agaCodeGenerator.cpp
 
-CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaASTExpression.h
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaASTNode.h
+CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaASTProgram.h
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaAllocationBlock.h
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaCodeGenerator.h
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaCompiler.h
+CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaInstructions.h
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaLang.h
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaLogger.h
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaParser.h
@@ -41,10 +45,12 @@ CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTBinaryOperator.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTConstant.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTExpression.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTNode.h
+CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTProgram.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTVariable.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaAllocationBlock.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaConstants.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaException.h
+CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaInstructions.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaLexer.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaLogger.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaParser.h

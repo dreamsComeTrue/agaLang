@@ -11,26 +11,21 @@ namespace aga
 	{
 	public:
 		agaASTConstant (agaToken token, long value) :
-			agaASTExpression (IntegerExpression),
-			m_Token (token),
+			agaASTExpression (ConstantNode, IntegerConst, token),
 			m_TypeInfo (value) { }
 
 		agaASTConstant (agaToken token, double value) :
-			agaASTExpression (FloatExpression),
-			m_Token (token),
+			agaASTExpression (ConstantNode, FloatConst, token),
 			m_TypeInfo (value) { }
 
-		virtual agaASTNode *Evaluate (agaASTNode *parent)
+		virtual void Evaluate ()
 		{
 			std::string line = "CONST " + m_Token.GetLiteral();
 
-			agaASTNode *node = new agaASTNode (ASTNodeType::Constant, parent, line);
-
-			return node;
+			m_AllocationBlock.SetCode (line);
 		}
 
 	private:
-		agaToken		m_Token;
 		agaTypeInfo		m_TypeInfo;
 	};
 }
