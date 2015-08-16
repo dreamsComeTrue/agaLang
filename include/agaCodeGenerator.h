@@ -9,8 +9,10 @@
 namespace aga
 {
 	class agaASTExpression;
+	class agaASTBinaryOperator;
 	class agaASTNode;
 	class agaASTProgram;
+	class agaASTAssignment;
 	
 	class agaCodeGenerator
 	{
@@ -24,14 +26,17 @@ namespace aga
 		
 		void AddCodeLine (const std::string& codeLine);
 		
-		void GenerateBinaryExpression (agaASTNode* node);
+		void GenerateAssignment (agaASTAssignment* node);
+		void GenerateBinaryExpression (agaASTBinaryOperator* node);
 		
 		void EmitInstruction (InstructionType instruction, int dstRegisterIndex, int srcRegisterIndex);
 		void EmitInstruction (InstructionType instruction, int registerIndex, agaASTNode* node);
+		void EmitInstruction (InstructionType instruction, agaASTNode* node, int registerIndex);
 		
 		InstructionType GetInstructionTypeFromCode (const std::string& code);
 		
 		std::vector<std::string> m_Code;
+		int m_CurrentRegisterIndex;
 	};
 }
 

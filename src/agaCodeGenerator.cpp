@@ -2,13 +2,16 @@
 
 #include "agaCodeGenerator.h"
 #include "agaASTExpression.h"
+#include "agaASTAssignment.h"
+#include "agaASTBinaryOperator.h"
 #include "agaASTProgram.h"
 
 namespace aga
 {
 	//--------------------------------------------------------------------------------
 
-	agaCodeGenerator::agaCodeGenerator()
+	agaCodeGenerator::agaCodeGenerator() :
+		m_CurrentRegisterIndex (1)
 	{
 
 	}
@@ -42,30 +45,38 @@ namespace aga
 
 	const std::vector<std::string> &agaCodeGenerator::GenerateCode (agaASTNode *node)
 	{
-		if (node->GetType() == ASTNodeType::BinaryOperationNode)
+		if (node->GetType() == ASTNodeType::AssignmentNode)
 		{
-			GenerateBinaryExpression (node);
+			GenerateAssignment (static_cast<agaASTAssignment *> (node));
 		}
 		else
-		{
-			std::string codeLine = node->GetAllocationBlock().GetCode();
-
-			AddCodeLine (codeLine);
-
-			std::vector<agaASTNode *> children = node->GetChildren();
-
-			for (int i = 0; i < children.size(); ++i)
+			if (node->GetType() == ASTNodeType::BinaryOperationNode)
 			{
-				GenerateCode (children[i]);
+				GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (node));
 			}
-		}
+			else
+			{
+				std::string codeLine = node->GetAllocationBlock().GetCode();
+
+				if (node->GetType() == ConstantNode || node->GetType() == VariableNode)
+				{
+					EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex,  node);
+				}
+				
+				m_CurrentRegisterIndex++;
+
+			//	AddCodeLine (codeLine);
+
+				std::vector<agaASTNode *> children = node->GetChildren();
+
+				for (int i = 0; i < children.size(); ++i)
+				{
+					GenerateCode (children[i]);
+				}
+			}
 
 		return m_Code;
 	}
-
-	//--------------------------------------------------------------------------------
-
-	int currentRegisterIndex = 1;
 
 	//--------------------------------------------------------------------------------
 
@@ -80,53 +91,72 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
-	void agaCodeGenerator::GenerateBinaryExpression (agaASTNode *node)
+	void agaCodeGenerator::GenerateAssignment (agaASTAssignment *node)
+	{
+		agaASTExpression *expression = node->GetExpression();
+
+		expression->Evaluate();
+
+		GenerateCode (expression);
+
+		node->Evaluate();
+
+		EmitInstruction (InstructionType::MOV, node, m_CurrentRegisterIndex - 1);
+	}
+
+	//--------------------------------------------------------------------------------
+
+	void agaCodeGenerator::GenerateBinaryExpression (agaASTBinaryOperator *node)
 	{
 		std::vector<agaASTNode *> children = node->GetChildren();
+
+		node->Evaluate();
+		children[0]->Evaluate ();
+		children[1]->Evaluate ();
 
 		ASTNodeType leftType = children[0]->GetType();
 		ASTNodeType rightType = children[1]->GetType();
 
 		if (leftType == ASTNodeType::BinaryOperationNode)
 		{
-			GenerateBinaryExpression (children[0]);
-			children[0]->GetAllocationBlock ().SetRegisterIndex (currentRegisterIndex-1);
+			GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (children[0]));
+			children[0]->GetAllocationBlock ().SetRegisterIndex (m_CurrentRegisterIndex - 1);
 		}
 
 		if (rightType == ASTNodeType::BinaryOperationNode)
 		{
-			GenerateBinaryExpression (children[1]);
-			children[1]->GetAllocationBlock ().SetRegisterIndex (currentRegisterIndex-1);
+			GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (children[1]));
+			children[1]->GetAllocationBlock ().SetRegisterIndex (m_CurrentRegisterIndex - 1);
 		}
 
 		if (leftType != ASTNodeType::BinaryOperationNode)
 		{
-			EmitInstruction (InstructionType::MOV, currentRegisterIndex, children[0]);
+			EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, children[0]);
 		}
 		else
 		{
-			EmitInstruction (InstructionType::MOV, currentRegisterIndex, children[0]->GetAllocationBlock().GetRegisterIndex ());
+			EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, children[0]->GetAllocationBlock().GetRegisterIndex ());
 		}
-		
+
 		InstructionType instructionType = GetInstructionTypeFromCode (node->GetAllocationBlock().GetCode());
 
 		if (rightType != ASTNodeType::BinaryOperationNode)
 		{
-			EmitInstruction (instructionType, currentRegisterIndex, children[1]);
+			EmitInstruction (instructionType, m_CurrentRegisterIndex, children[1]);
 		}
 		else
 		{
-			EmitInstruction (instructionType, currentRegisterIndex, children[1]->GetAllocationBlock().GetRegisterIndex ());
+			EmitInstruction (instructionType, m_CurrentRegisterIndex, children[1]->GetAllocationBlock().GetRegisterIndex ());
 		}
 
-		++currentRegisterIndex;
+		++m_CurrentRegisterIndex;
 	}
 
 	//--------------------------------------------------------------------------------
 
 	void agaCodeGenerator::EmitInstruction (InstructionType instruction, int dstRegisterIndex, int srcRegisterIndex)
 	{
-		std::string codeLine = std::string(instructions[instruction].word) + " #";
+		std::string codeLine = std::string (instructions[instruction].word) + " #";
 		codeLine += ToString (dstRegisterIndex) + ", ";
 		codeLine += "#" + ToString (srcRegisterIndex);
 
@@ -137,16 +167,28 @@ namespace aga
 
 	void agaCodeGenerator::EmitInstruction (InstructionType instruction, int registerIndex, agaASTNode *node)
 	{
-		std::string codeLine = std::string(instructions[instruction].word) + " #";
+		std::string codeLine = std::string (instructions[instruction].word) + " #";
 		codeLine += ToString (registerIndex) + ", ";
 		codeLine += node->GetAllocationBlock().GetCode();
 
 		AddCodeLine (codeLine);
 	}
-	
+
 	//--------------------------------------------------------------------------------
-	
-	InstructionType agaCodeGenerator::GetInstructionTypeFromCode (const std::string& code)
+
+	void agaCodeGenerator::EmitInstruction (InstructionType instruction, agaASTNode *node, int registerIndex)
+	{
+		std::string codeLine = std::string (instructions[instruction].word);
+		codeLine += " " + node->GetAllocationBlock().GetCode();
+		codeLine +=  ", #" + ToString (registerIndex);
+
+
+		AddCodeLine (codeLine);
+	}
+
+	//--------------------------------------------------------------------------------
+
+	InstructionType agaCodeGenerator::GetInstructionTypeFromCode (const std::string &code)
 	{
 		for (int i = 0; i < instructionsCount; ++i)
 		{
@@ -155,7 +197,7 @@ namespace aga
 				return instructions[i].type;
 			}
 		}
-		
+
 		return InstructionType::Unknown;
 	}
 

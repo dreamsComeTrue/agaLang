@@ -29,7 +29,7 @@ namespace aga
 	{
 		m_Parser = std::unique_ptr<agaParser> (new agaParser (code));
 
-		agaASTProgram *programNode = m_Parser->Parse ();
+		agaASTProgram *programNode = m_Parser->ParseProgram ();
 
 		m_CodeGenerator = std::unique_ptr<agaCodeGenerator> (new agaCodeGenerator ());
 

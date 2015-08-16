@@ -10,6 +10,7 @@
 #include "agaASTVariable.h"
 #include "agaASTBinaryOperator.h"
 #include "agaASTProgram.h"
+#include "agaASTAssignment.h"
 
 namespace aga
 {
@@ -32,11 +33,23 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
-	agaASTProgram *agaParser::Parse()
+	agaASTProgram *agaParser::ParseProgram ()
 	{
-		m_CurrentToken = m_Lexer->GetNextToken();
+		ReadNextToken();
 
-		agaASTProgram *program = ParseProgram();
+		agaASTProgram *program = new agaASTProgram ();
+
+		while (m_CurrentToken.GetType() != TokenUnknown)
+		{
+			if (AcceptToken (TokenIdentifier))
+			{
+				agaASTNode *assignment = ParseAssignment();
+
+				program->AddStatement (assignment);
+			}
+
+			ReadNextToken();
+		}
 
 		if (m_CurrentToken.GetType() != TokenUnknown)
 		{
@@ -45,28 +58,30 @@ namespace aga
 
 		return program;
 	}
-	
+
 	//--------------------------------------------------------------------------------
-	
-	agaASTProgram *agaParser::ParseProgram ()
+
+	agaASTNode *agaParser::ParseAssignment ()
 	{
-		agaASTProgram* program = new agaASTProgram ();
-		
-		while (m_CurrentToken.GetType() != TokenUnknown)
+		agaASTNode *assignment = nullptr;
+
+		if (AcceptToken (TokenIdentifier))
 		{
-			agaASTNode* expression = ParseExpression();
+			agaToken token = m_CurrentToken;
+
+			ReadNextToken();
+			AssertToken (TokenEquals);
+			ReadNextToken();
+
+			agaASTExpression *expression = static_cast<agaASTExpression *> (ParseExpression());
+
+			assignment = new agaASTAssignment (token, expression);
 			
-			program->AddStatement (expression);			
+			//ReadNextToken();
+			AssertToken(TokenSemicolon);
 		}
-		
-		return program;
-	}
 
-	//--------------------------------------------------------------------------------
-
-	agaASTNode* agaParser::ParseAssignment ()
-	{
-		return nullptr;
+		return assignment;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -74,10 +89,15 @@ namespace aga
 	//	expression = ["+"|"-"] term {("+"|"-") term} .
 	agaASTNode *agaParser::ParseExpression ()
 	{
+		if (m_CurrentToken.GetType () == TokenIdentifier && m_Lexer->CheckNextToken().GetType () == TokenEquals)
+		{
+			return ParseAssignment();
+		}
+
 		//	Unary plus|minus
 		if (m_CurrentToken.GetType () == TokenPlus || m_CurrentToken.GetType () == TokenMinus)
 		{
-			m_CurrentToken = m_Lexer->GetNextToken();
+			ReadNextToken();
 		}
 
 		agaASTNode *leftTermExpression = ParseTerm ();
@@ -86,7 +106,7 @@ namespace aga
 		{
 			agaToken binaryOperationToken = m_CurrentToken;
 
-			m_CurrentToken = m_Lexer->GetNextToken();
+			ReadNextToken();
 
 			agaASTNode *rightTermExpression = ParseTerm ();
 
@@ -107,7 +127,7 @@ namespace aga
 		{
 			agaToken binaryOperationToken = m_CurrentToken;
 
-			m_CurrentToken = m_Lexer->GetNextToken();
+			ReadNextToken();
 
 			agaASTNode *rightFactorExpression  = ParseFactor();
 
@@ -147,20 +167,25 @@ namespace aga
 					result = new agaASTConstant (m_CurrentToken, value);
 				}
 				else
-					if (AcceptToken (TokenLeftParenthesis))
+					if (AcceptToken (TokenString))
 					{
-						m_CurrentToken = m_Lexer->GetNextToken ();
-
-						result = ParseExpression ();
-
-						AssertToken (TokenRightParenthesis);
+						result = new agaASTConstant (m_CurrentToken, m_CurrentToken.GetLiteral ());
 					}
 					else
-					{
-						throw agaException (UNEXPECTED_TOKEN, tokenWords[m_CurrentToken.GetType()].word);
-					}
+						if (AcceptToken (TokenLeftParenthesis))
+						{
+							ReadNextToken();
 
-		m_CurrentToken = m_Lexer->GetNextToken ();
+							result = ParseExpression ();
+
+							AssertToken (TokenRightParenthesis);
+						}
+						else
+						{
+							throw agaException (UNEXPECTED_TOKEN, tokenWords[m_CurrentToken.GetType()].word);
+						}
+
+		ReadNextToken();
 
 		return result;
 	}
@@ -194,6 +219,15 @@ namespace aga
 		}
 
 		return false;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	agaToken agaParser::ReadNextToken()
+	{
+		m_CurrentToken = m_Lexer->GetNextToken();
+
+		return m_CurrentToken;
 	}
 
 	//--------------------------------------------------------------------------------

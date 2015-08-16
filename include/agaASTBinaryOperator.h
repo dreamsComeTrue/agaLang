@@ -12,48 +12,47 @@ namespace aga
 	public:
 		agaASTBinaryOperator (agaToken token, agaASTNode *left, agaASTNode *right) :
 			agaASTExpression (BinaryOperationNode, BinaryOperation, token),
-			m_Operator (token.GetLiteral().at (0)),
-			m_Left (left),
-			m_Right (right) {
-				m_Children.push_back(left);
-				m_Children.push_back(right);				
-			}
+			m_Operator (token.GetLiteral().at (0))
+		{
+			m_Children.push_back (left);
+			m_Children.push_back (right);
+		}
 
 
 		virtual void Evaluate ()
 		{
 			long leftLong;
 			double leftDouble;
-		/*	ExpressionType leftType = VariableExpression;
+			/*	ExpressionType leftType = VariableExpression;
 
-			long rightLong;
-			double rightDouble;
-			ExpressionType rightType = VariableExpression;
+				long rightLong;
+				double rightDouble;
+				ExpressionType rightType = VariableExpression;
 
-			if (m_Left->GetType() == IntegerExpression)
-			{
-				//	leftLong = ( (agaASTConstant*) m_Left)->GetLongValue();
-				leftType = IntegerExpression;
-			}
-			else
-				if (m_Left->GetType() == FloatExpression)
+				if (m_Left->GetType() == IntegerExpression)
 				{
-					//		leftDouble = ( (agaASTConstant*) m_Left)->GetDoubleValue();
-					leftType = FloatExpression;
+					//	leftLong = ( (agaASTConstant*) m_Left)->GetLongValue();
+					leftType = IntegerExpression;
 				}
+				else
+					if (m_Left->GetType() == FloatExpression)
+					{
+						//		leftDouble = ( (agaASTConstant*) m_Left)->GetDoubleValue();
+						leftType = FloatExpression;
+					}
 
-			if (m_Right->GetType() == IntegerExpression)
-			{
-				//	rightLong = ( (agaASTConstant*) m_Right)->GetLongValue();
-			//	rightType = IntegerExpression;
-			}
-			else
-				if (m_Right->GetType() == FloatExpression)
+				if (m_Right->GetType() == IntegerExpression)
 				{
-					//		rightDouble = ( (agaASTConstant*) m_Right)->GetDoubleValue();
-					//rightType = Fl;
+					//	rightLong = ( (agaASTConstant*) m_Right)->GetLongValue();
+				//	rightType = IntegerExpression;
 				}
-*/
+				else
+					if (m_Right->GetType() == FloatExpression)
+					{
+						//		rightDouble = ( (agaASTConstant*) m_Right)->GetDoubleValue();
+						//rightType = Fl;
+					}
+			*/
 			std::string code = "";
 
 			switch (m_Operator)
@@ -79,13 +78,10 @@ namespace aga
 					break;
 			}
 
-			m_AllocationBlock.SetCode(code);
+			m_AllocationBlock.SetCode (code);
 
-			m_Left->Evaluate ();
-			m_Right->Evaluate ();
-
-		//	this->AddChild (m_Left);
-		//	this->AddChild (m_Right);
+			m_Children[0]->Evaluate ();
+			m_Children[1]->Evaluate ();
 		}
 
 	private:

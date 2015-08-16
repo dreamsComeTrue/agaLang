@@ -207,6 +207,12 @@ namespace aga
 						break;
 					}
 
+					case ';':
+					{
+						token = agaToken (";", TokenSemicolon, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
+						break;
+					}
+
 					case '.':
 					{
 						long begin = m_CurrentPosition;
@@ -264,7 +270,26 @@ namespace aga
 				m_CurrentLine = lastLine;
 			}
 		}
-		
+
+		return token;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	agaToken agaLexer::CheckNextToken()
+	{
+		long line =	m_CurrentLine;
+		long column = m_CurrentColumn;
+		long position =	m_CurrentPosition;
+		char character = m_CurrentCharacter;
+
+		agaToken token = GetNextToken();
+
+		m_CurrentLine = line;
+		m_CurrentColumn = column;
+		m_CurrentPosition = position;
+		m_CurrentCharacter = character;
+
 		return token;
 	}
 

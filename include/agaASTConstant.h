@@ -18,6 +18,10 @@ namespace aga
 			agaASTExpression (ConstantNode, FloatConst, token),
 			m_TypeInfo (value) { }
 
+		agaASTConstant (agaToken token, std::string value) :
+			agaASTExpression (ConstantNode, StringConst, token),
+			m_TypeInfo (const_cast<char*>(value.c_str())) { }
+
 		virtual void Evaluate ()
 		{
 			std::string line = "CONST " + m_Token.GetLiteral();

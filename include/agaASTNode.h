@@ -14,6 +14,7 @@ namespace aga
 	    ProgramNode,
 	    ConstantNode,
 	    VariableNode,
+		AssignmentNode,
 	    ExpressionNode,
 	    BinaryOperationNode
 	};

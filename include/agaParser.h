@@ -17,11 +17,11 @@ namespace aga
 		agaParser (const std::string& source);
 		~agaParser ();
 		
-		agaASTProgram* Parse ();
+		agaASTProgram* ParseProgram ();
 		
 	private:
 		//	Internal
-		agaASTProgram* ParseProgram ();
+		agaToken ReadNextToken ();
 		agaASTNode* ParseExpression ();
 		agaASTNode* ParseAssignment ();
 		agaASTNode* ParseTerm ();

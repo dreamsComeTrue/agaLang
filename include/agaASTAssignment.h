@@ -8,14 +8,25 @@ namespace aga
 	class agaASTAssignment : public agaASTExpression
 	{
 	public:
-		agaASTAssignment (agaToken token) :
-			agaASTExpression (ExpressionType::Assignment),
-			m_Token (token) { }
+		agaASTAssignment (agaToken token, agaASTExpression *expression) :
+			agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, token),
+			m_Expression (expression)
+		{}
+		
+		agaASTExpression* GetExpression () const
+		{
+			return m_Expression;
+		}
 
-		virtual agaASTNode *Evaluate (agaASTNode *parent) = 0;
+		virtual void Evaluate ()
+		{
+			std::string code = m_Token.GetLiteral();
+			
+			GetAllocationBlock().SetCode (code);
+		}
 
 	protected:
-		agaToken		m_Token;
+		agaASTExpression *m_Expression;
 	};
 }
 

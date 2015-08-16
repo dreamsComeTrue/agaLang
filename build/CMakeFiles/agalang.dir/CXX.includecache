@@ -6,6 +6,10 @@
 
 #IncludeRegexTransform: 
 
+../include/agaASTAssignment.h
+agaASTExpression.h
+../include/agaASTExpression.h
+
 ../include/agaASTBinaryOperator.h
 agaASTExpression.h
 ../include/agaASTExpression.h
@@ -115,6 +119,10 @@ agaCodeGenerator.h
 /home/squall/projects/agaLang/src/agaCodeGenerator.h
 agaASTExpression.h
 /home/squall/projects/agaLang/src/agaASTExpression.h
+agaASTAssignment.h
+/home/squall/projects/agaLang/src/agaASTAssignment.h
+agaASTBinaryOperator.h
+/home/squall/projects/agaLang/src/agaASTBinaryOperator.h
 agaASTProgram.h
 /home/squall/projects/agaLang/src/agaASTProgram.h
 
@@ -203,6 +211,8 @@ agaASTBinaryOperator.h
 /home/squall/projects/agaLang/src/agaASTBinaryOperator.h
 agaASTProgram.h
 /home/squall/projects/agaLang/src/agaASTProgram.h
+agaASTAssignment.h
+/home/squall/projects/agaLang/src/agaASTAssignment.h
 
 /home/squall/projects/agaLang/src/agaToken.cpp
 agaToken.h

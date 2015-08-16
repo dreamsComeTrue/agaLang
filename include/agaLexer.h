@@ -13,6 +13,7 @@ namespace aga
 		agaLexer (const std::string& source);
 		
 		agaToken GetNextToken ();
+		agaToken CheckNextToken ();
 		bool HasMoreTokens ();
 		
 	private:
