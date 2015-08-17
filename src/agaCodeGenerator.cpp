@@ -4,23 +4,32 @@
 #include "agaASTExpression.h"
 #include "agaASTAssignment.h"
 #include "agaASTBinaryOperator.h"
+#include "agaASTBooleanRelation.h"
 #include "agaASTProgram.h"
+#include "agaUtils.h"
 
 namespace aga
 {
 	//--------------------------------------------------------------------------------
 
 	agaCodeGenerator::agaCodeGenerator() :
-		m_CurrentRegisterIndex (1)
+		m_CurrentRegisterIndex (1),
+		m_CurrentLabelIndex (0)
 	{
-
 	}
 
 	//--------------------------------------------------------------------------------
 
-	void agaCodeGenerator::AddCodeLine (const std::string &codeLine)
+	void agaCodeGenerator::AddCodeLine (const std::string &codeLine, int indentLevel)
 	{
-		m_Code.push_back (codeLine);
+		std::string indentString = "";
+
+		for (int i = 0; i < indentLevel; ++i)
+		{
+			indentString += "    ";
+		}
+
+		m_Code.push_back (indentString + codeLine);
 	}
 
 	//--------------------------------------------------------------------------------
@@ -55,38 +64,32 @@ namespace aga
 				GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (node));
 			}
 			else
-			{
-				std::string codeLine = node->GetAllocationBlock().GetCode();
-
-				if (node->GetType() == ConstantNode || node->GetType() == VariableNode)
+				if (node->GetType() == ASTNodeType::BooleanRelationNode)
 				{
-					EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex,  node);
+					GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (node));
 				}
-				
-				m_CurrentRegisterIndex++;
-
-			//	AddCodeLine (codeLine);
-
-				std::vector<agaASTNode *> children = node->GetChildren();
-
-				for (int i = 0; i < children.size(); ++i)
+				else
 				{
-					GenerateCode (children[i]);
+					std::string codeLine = node->GetAllocationBlock().GetCode();
+
+					if (node->GetType() == ConstantNode || node->GetType() == VariableNode)
+					{
+						EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex,  node->GetAllocationBlock().GetCode());
+					}
+
+					m_CurrentRegisterIndex++;
+
+					//	AddCodeLine (codeLine);
+
+					std::vector<agaASTNode *> children = node->GetChildren();
+
+					for (int i = 0; i < children.size(); ++i)
+					{
+						GenerateCode (children[i]);
+					}
 				}
-			}
 
 		return m_Code;
-	}
-
-	//--------------------------------------------------------------------------------
-
-	std::string ToString (int value)
-	{
-		std::stringstream sstream;
-
-		sstream << value;
-
-		return sstream.str();
 	}
 
 	//--------------------------------------------------------------------------------
@@ -101,7 +104,7 @@ namespace aga
 
 		node->Evaluate();
 
-		EmitInstruction (InstructionType::MOV, node, m_CurrentRegisterIndex - 1);
+		EmitInstruction (InstructionType::MOV, node->GetAllocationBlock().GetCode(), m_CurrentRegisterIndex - 1);
 	}
 
 	//--------------------------------------------------------------------------------
@@ -131,7 +134,7 @@ namespace aga
 
 		if (leftType != ASTNodeType::BinaryOperationNode)
 		{
-			EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, children[0]);
+			EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, children[0]->GetAllocationBlock().GetCode());
 		}
 		else
 		{
@@ -142,7 +145,7 @@ namespace aga
 
 		if (rightType != ASTNodeType::BinaryOperationNode)
 		{
-			EmitInstruction (instructionType, m_CurrentRegisterIndex, children[1]);
+			EmitInstruction (instructionType, m_CurrentRegisterIndex, children[1]->GetAllocationBlock().GetCode());
 		}
 		else
 		{
@@ -154,36 +157,80 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
+	void agaCodeGenerator::GenerateBooleanRelation (agaASTBooleanRelation *node)
+	{
+		std::vector<agaASTNode *> children = node->GetChildren();
+
+		if (node->GetToken().GetType() == TokenSameAs)
+		{
+			GenerateCode (children[0]);
+
+			int firstIndex = m_CurrentRegisterIndex - 1;
+
+			GenerateCode (children[1]);
+
+			int secondIndex = m_CurrentRegisterIndex - 1;
+
+			EmitInstruction (InstructionType::CMP, firstIndex, secondIndex);
+			EmitInstruction (InstructionType::JE, "jumpNode");
+			EmitLabel();
+		}
+	}
+
+	//--------------------------------------------------------------------------------
+
+	void agaCodeGenerator::EmitInstruction (InstructionType instruction, const std::string &label)
+	{
+		std::string codeLine = std::string (instructions[instruction].word) + " .";
+		codeLine += label;
+
+		AddCodeLine (codeLine, 1);
+	}
+
+	//--------------------------------------------------------------------------------
+
 	void agaCodeGenerator::EmitInstruction (InstructionType instruction, int dstRegisterIndex, int srcRegisterIndex)
 	{
 		std::string codeLine = std::string (instructions[instruction].word) + " #";
 		codeLine += ToString (dstRegisterIndex) + ", ";
 		codeLine += "#" + ToString (srcRegisterIndex);
 
-		AddCodeLine (codeLine);
+		AddCodeLine (codeLine, 1);
 	}
 
 	//--------------------------------------------------------------------------------
 
-	void agaCodeGenerator::EmitInstruction (InstructionType instruction, int registerIndex, agaASTNode *node)
+	void agaCodeGenerator::EmitInstruction (InstructionType instruction, int registerIndex, const std::string &value)
 	{
 		std::string codeLine = std::string (instructions[instruction].word) + " #";
 		codeLine += ToString (registerIndex) + ", ";
-		codeLine += node->GetAllocationBlock().GetCode();
+		codeLine += value;
 
-		AddCodeLine (codeLine);
+		AddCodeLine (codeLine, 1);
 	}
 
 	//--------------------------------------------------------------------------------
 
-	void agaCodeGenerator::EmitInstruction (InstructionType instruction, agaASTNode *node, int registerIndex)
+	void agaCodeGenerator::EmitInstruction (InstructionType instruction, const std::string &value, int registerIndex)
 	{
 		std::string codeLine = std::string (instructions[instruction].word);
-		codeLine += " " + node->GetAllocationBlock().GetCode();
+		codeLine += " " + value;
 		codeLine +=  ", #" + ToString (registerIndex);
 
+		AddCodeLine (codeLine, 1);
+	}
 
-		AddCodeLine (codeLine);
+	//--------------------------------------------------------------------------------
+
+	const std::string &agaCodeGenerator::EmitLabel()
+	{
+		std::string codeLine = "_l" + ToString (m_CurrentLabelIndex);
+
+		++m_CurrentLabelIndex;
+
+		AddCodeLine (codeLine + ":");
+
+		return codeLine;
 	}
 
 	//--------------------------------------------------------------------------------

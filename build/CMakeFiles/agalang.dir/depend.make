@@ -3,6 +3,7 @@
 
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTAssignment.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTBinaryOperator.h
+CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTBooleanRelation.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTConstant.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTExpression.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaASTNode.h
@@ -12,6 +13,7 @@ CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaCodeGenerator.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaInstructions.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaToken.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaTypeInfo.h
+CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../include/agaUtils.h
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o: ../src/agaCodeGenerator.cpp
 
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o: ../include/agaASTNode.h
@@ -47,6 +49,7 @@ CMakeFiles/agalang.dir/src/agaMain.cpp.o: ../src/agaMain.cpp
 
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTAssignment.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTBinaryOperator.h
+CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTBooleanRelation.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTConstant.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTExpression.h
 CMakeFiles/agalang.dir/src/agaParser.cpp.o: ../include/agaASTNode.h

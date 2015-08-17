@@ -197,7 +197,17 @@ namespace aga
 
 					case '=':
 					{
-						token = agaToken ("=", TokenEquals, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
+						if (CheckNextCharacter() == '=')
+						{
+							GetNextCharacter();
+							
+							token = agaToken ("==", TokenSameAs, m_CurrentLine, m_CurrentColumn, m_CurrentColumn + 1, m_CurrentPosition);
+						}
+						else
+						{
+							token = agaToken ("=", TokenEquals, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
+						}
+
 						break;
 					}
 
@@ -210,6 +220,12 @@ namespace aga
 					case ';':
 					{
 						token = agaToken (";", TokenSemicolon, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
+						break;
+					}
+
+					case '<':
+					{
+						token = agaToken ("<", TokenLeftBrace, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
 						break;
 					}
 
@@ -341,6 +357,22 @@ namespace aga
 		}
 
 		return m_Source[m_CurrentPosition];
+	}
+
+	//--------------------------------------------------------------------------------
+
+	char agaLexer::CheckNextCharacter()
+	{
+		long pos = m_CurrentPosition;
+		long col = m_CurrentColumn;
+		char currentChar = m_CurrentCharacter;
+		char charToReturn = GetNextCharacter();
+
+		m_CurrentPosition = pos;
+		m_CurrentColumn = col;
+		m_CurrentCharacter = currentChar;
+
+		return charToReturn;
 	}
 
 	//--------------------------------------------------------------------------------

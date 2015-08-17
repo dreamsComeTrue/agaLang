@@ -9,6 +9,7 @@
 #include "agaASTConstant.h"
 #include "agaASTVariable.h"
 #include "agaASTBinaryOperator.h"
+#include "agaASTBooleanRelation.h"
 #include "agaASTProgram.h"
 #include "agaASTAssignment.h"
 
@@ -76,9 +77,9 @@ namespace aga
 			agaASTExpression *expression = static_cast<agaASTExpression *> (ParseExpression());
 
 			assignment = new agaASTAssignment (token, expression);
-			
+
 			//ReadNextToken();
-			AssertToken(TokenSemicolon);
+			AssertToken (TokenSemicolon);
 		}
 
 		return assignment;
@@ -86,8 +87,35 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
+	agaASTNode *agaParser::ParseExpression()
+	{
+		return ParseBooleanRelation();
+	}
+
+	//--------------------------------------------------------------------------------
+
+	agaASTNode *agaParser::ParseBooleanRelation()
+	{
+		agaASTNode *sumExpression = ParseSumExpression();
+		
+		if (AcceptToken(TokenSameAs))
+		{
+			agaToken token = m_CurrentToken;
+			
+			ReadNextToken();
+			
+			agaASTNode *rightExpression = ParseSumExpression ();
+			
+			return new agaASTBooleanRelation (token, sumExpression, rightExpression);
+		}
+		
+		return sumExpression;
+	}
+
+	//--------------------------------------------------------------------------------
+
 	//	expression = ["+"|"-"] term {("+"|"-") term} .
-	agaASTNode *agaParser::ParseExpression ()
+	agaASTNode *agaParser::ParseSumExpression ()
 	{
 		if (m_CurrentToken.GetType () == TokenIdentifier && m_Lexer->CheckNextToken().GetType () == TokenEquals)
 		{

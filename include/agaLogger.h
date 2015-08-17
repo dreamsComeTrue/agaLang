@@ -24,6 +24,8 @@ namespace aga
 		static void log (long logInfo, bool endLine = true);
 		static void log (double logInfo, bool endLine = true);
 		static void log (bool endLine, const char* fmt...);
+		
+		static void PrintMemory (int memoryAddress, const std::string& logInfo, bool endLine = true);
 	};
 }
 

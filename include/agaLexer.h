@@ -23,6 +23,7 @@ namespace aga
 		bool isDigit (char character);
 		
 		char GetNextCharacter ();
+		char CheckNextCharacter ();
 		
 		std::string	m_Source;
 		long		m_CurrentLine;

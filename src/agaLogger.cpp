@@ -62,12 +62,24 @@ namespace aga
 			std::cout << std::endl;
 		}
 	}
-	
+
 	//--------------------------------------------------------------------------------
-	
+
 	void agaLogger::log (double logInfo, bool endLine)
 	{
-		std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(4) << logInfo;
+		std::cout << std::setiosflags (std::ios::fixed) << std::setprecision (4) << logInfo;
+
+		if (endLine)
+		{
+			std::cout << std::endl;
+		}
+	}
+
+	//--------------------------------------------------------------------------------
+
+	void agaLogger::PrintMemory (int memoryAddress, const std::string &logInfo, bool endLine)
+	{
+		std::cout << std::hex << std::setfill ('0') << std::setw (4) << memoryAddress << "  " << logInfo;
 
 		if (endLine)
 		{
@@ -117,7 +129,7 @@ namespace aga
 		}
 
 		va_end (args);
-		
+
 		if (endLine)
 		{
 			std::cout << std::endl;

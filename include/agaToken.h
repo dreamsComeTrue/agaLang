@@ -25,7 +25,12 @@ namespace aga
 	    TokenMultiply,						//	*
 	    TokenDivide,						//	/
 	    TokenEquals,						//	=
-	    TokenPound							//	#
+	    TokenPound,							//	#
+	    TokenSameAs,						//	==
+	    TokenLessThan,						//	<
+	    TokenLessEqualThan,					//	<=
+	    TokenGreaterThan,					//	>
+	    TokenGreaterEqualThan,				//	>=
 	};
 
 	struct TokenWord
@@ -55,6 +60,11 @@ namespace aga
 		{"Divide"       , TokenDivide},
 		{"Equals"       , TokenEquals},
 		{"Pound"       , TokenPound},
+		{"SameAs"       , TokenSameAs},
+		{"LessThan"       , TokenLessThan},
+		{"LessEqualThan"       , TokenLessEqualThan},
+		{"GreaterThan"       , TokenGreaterThan},
+		{"GreaterEqualThan"       , TokenGreaterEqualThan},
 	};
 
 	int const numTokenWords = sizeof (tokenWords) /sizeof (TokenWord);

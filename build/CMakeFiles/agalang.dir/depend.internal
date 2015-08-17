@@ -4,6 +4,7 @@
 CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o
  ../include/agaASTAssignment.h
  ../include/agaASTBinaryOperator.h
+ ../include/agaASTBooleanRelation.h
  ../include/agaASTConstant.h
  ../include/agaASTExpression.h
  ../include/agaASTNode.h
@@ -13,6 +14,7 @@ CMakeFiles/agalang.dir/src/agaCodeGenerator.cpp.o
  ../include/agaInstructions.h
  ../include/agaToken.h
  ../include/agaTypeInfo.h
+ ../include/agaUtils.h
  /home/squall/projects/agaLang/src/agaCodeGenerator.cpp
 CMakeFiles/agalang.dir/src/agaCompiler.cpp.o
  ../include/agaASTNode.h
@@ -48,6 +50,7 @@ CMakeFiles/agalang.dir/src/agaMain.cpp.o
 CMakeFiles/agalang.dir/src/agaParser.cpp.o
  ../include/agaASTAssignment.h
  ../include/agaASTBinaryOperator.h
+ ../include/agaASTBooleanRelation.h
  ../include/agaASTConstant.h
  ../include/agaASTExpression.h
  ../include/agaASTNode.h

@@ -23,6 +23,8 @@ namespace aga
 		//	Internal
 		agaToken ReadNextToken ();
 		agaASTNode* ParseExpression ();
+		agaASTNode* ParseBooleanRelation ();	
+		agaASTNode* ParseSumExpression ();
 		agaASTNode* ParseAssignment ();
 		agaASTNode* ParseTerm ();
 		agaASTNode* ParseFactor ();				

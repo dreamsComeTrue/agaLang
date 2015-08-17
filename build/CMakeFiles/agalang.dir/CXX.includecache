@@ -18,6 +18,14 @@ agaASTConstant.h
 agaInstructions.h
 ../include/agaInstructions.h
 
+../include/agaASTBooleanRelation.h
+agaASTExpression.h
+../include/agaASTExpression.h
+agaASTConstant.h
+../include/agaASTConstant.h
+agaInstructions.h
+../include/agaInstructions.h
+
 ../include/agaASTConstant.h
 agaASTExpression.h
 ../include/agaASTExpression.h
@@ -112,6 +120,8 @@ string
 string
 -
 
+../include/agaUtils.h
+
 /home/squall/projects/agaLang/src/agaCodeGenerator.cpp
 sstream
 -
@@ -123,8 +133,12 @@ agaASTAssignment.h
 /home/squall/projects/agaLang/src/agaASTAssignment.h
 agaASTBinaryOperator.h
 /home/squall/projects/agaLang/src/agaASTBinaryOperator.h
+agaASTBooleanRelation.h
+/home/squall/projects/agaLang/src/agaASTBooleanRelation.h
 agaASTProgram.h
 /home/squall/projects/agaLang/src/agaASTProgram.h
+agaUtils.h
+/home/squall/projects/agaLang/src/agaUtils.h
 
 /home/squall/projects/agaLang/src/agaCompiler.cpp
 memory
@@ -209,6 +223,8 @@ agaASTVariable.h
 /home/squall/projects/agaLang/src/agaASTVariable.h
 agaASTBinaryOperator.h
 /home/squall/projects/agaLang/src/agaASTBinaryOperator.h
+agaASTBooleanRelation.h
+/home/squall/projects/agaLang/src/agaASTBooleanRelation.h
 agaASTProgram.h
 /home/squall/projects/agaLang/src/agaASTProgram.h
 agaASTAssignment.h

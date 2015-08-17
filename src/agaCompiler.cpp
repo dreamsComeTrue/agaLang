@@ -35,9 +35,11 @@ namespace aga
 
 		std::vector<std::string> generatedCode = m_CodeGenerator.get()->GenerateCode (programNode);
 
-		for (const std::string& lineOfCode : generatedCode)
-		{
-			agaLogger::log (lineOfCode);
+		for (int i = 0; i < generatedCode.size(); ++i)
+		{			
+			const std::string& lineOfCode = generatedCode[i];
+			
+			agaLogger::PrintMemory (i, lineOfCode);
 		}
 	}
 

@@ -12,7 +12,9 @@ namespace aga
 	    SUB,
 	    MUL,
 	    DIV,
-		Unknown,
+		CMP,
+	    JE,
+	    Unknown,
 	};
 
 	struct Instruction
@@ -28,6 +30,8 @@ namespace aga
 		{"SUB"       , SUB},
 		{"MUL"       , MUL},
 		{"DIV"       , DIV},
+		{"CMP"       , CMP},
+		{"JE"       , JE},
 	};
 
 	int const instructionsCount = sizeof (instructions) / sizeof (Instruction);

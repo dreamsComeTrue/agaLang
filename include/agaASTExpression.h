@@ -8,7 +8,8 @@ namespace aga
 	enum ExpressionType
 	{
 	    Assignment,
-	    BinaryOperation,
+		BinaryOperation,
+	    BooleanRelation,
 	    IntegerConst,
 	    FloatConst,
 	    StringConst,
