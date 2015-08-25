@@ -78,8 +78,7 @@ namespace aga
 
 			assignment = new agaASTAssignment (token, expression);
 
-			//ReadNextToken();
-			AssertToken (TokenSemicolon);
+			AssertTokens ({TokenComma, TokenEndOfLine, TokenEndOfFile});
 		}
 
 		return assignment;
@@ -97,18 +96,19 @@ namespace aga
 	agaASTNode *agaParser::ParseBooleanRelation()
 	{
 		agaASTNode *sumExpression = ParseSumExpression();
-		
-		if (AcceptToken(TokenSameAs))
+
+		if (AcceptToken (TokenSameAs) || AcceptToken (TokenLessEqualThan) || AcceptToken (TokenLessThan) ||
+		        AcceptToken (TokenGreaterEqualThan) || AcceptToken (TokenGreaterThan))
 		{
 			agaToken token = m_CurrentToken;
-			
+
 			ReadNextToken();
-			
+
 			agaASTNode *rightExpression = ParseSumExpression ();
-			
+
 			return new agaASTBooleanRelation (token, sumExpression, rightExpression);
 		}
-		
+
 		return sumExpression;
 	}
 
@@ -228,6 +228,23 @@ namespace aga
 		}
 
 		throw agaException (UNEXPECTED_TOKEN_EXPECTING, tokenWords[m_CurrentToken.GetType()].word, tokenWords[tokenToCheck].word);
+
+		return false;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	bool agaParser::AssertTokens (std::initializer_list<TokenType> tokens)
+	{
+		for (auto tokenType : tokens)
+		{
+			if (AcceptToken (tokenType))
+			{
+				return true;
+			}
+		}
+
+		throw agaException (UNEXPECTED_TOKEN_EXPECTING, tokenWords[m_CurrentToken.GetType()].word, tokenWords[*tokens.begin()].word);
 
 		return false;
 	}

@@ -8,6 +8,8 @@ namespace aga
 	enum TokenType
 	{
 	    TokenUnknown,
+		TokenEndOfFile,						//	EOF	
+		TokenEndOfLine,						//	EOL
 	    TokenInteger,						//	323
 	    TokenFloat,							//	12.453
 	    TokenString,						//	"abc"
@@ -20,6 +22,7 @@ namespace aga
 	    TokenIdentifier,					//	hello
 	    TokenColon,							//	:
 	    TokenSemicolon,						//	;
+		TokenComma,							//	,
 	    TokenPlus,							//	+
 	    TokenMinus,							//	-
 	    TokenMultiply,						//	*
@@ -42,6 +45,8 @@ namespace aga
 	TokenWord const tokenWords[] =
 	{
 		{"Unknown"       , TokenUnknown},
+		{"EOF"       , TokenEndOfFile},
+		{"EOL"       , TokenEndOfLine},
 		{"TokenInteger"       , TokenInteger},
 		{"TokenFloat"       , TokenFloat},
 		{"String"       , TokenString},
@@ -54,6 +59,7 @@ namespace aga
 		{"Identifier"       , TokenIdentifier},
 		{"Colon"       , TokenColon},
 		{"Semicolon"       , TokenSemicolon},
+		{"Comma"       , TokenComma},
 		{"Plus"       , TokenPlus},
 		{"Minus"       , TokenMinus},
 		{"Multiply"       , TokenMultiply},

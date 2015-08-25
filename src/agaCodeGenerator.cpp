@@ -161,19 +161,22 @@ namespace aga
 	{
 		std::vector<agaASTNode *> children = node->GetChildren();
 
-		if (node->GetToken().GetType() == TokenSameAs)
+		switch (node->GetToken().GetType())
 		{
-			GenerateCode (children[0]);
+			case TokenSameAs:
+			case TokenLessThan:
+				GenerateCode (children[0]);
 
-			int firstIndex = m_CurrentRegisterIndex - 1;
+				int firstIndex = m_CurrentRegisterIndex - 1;
 
-			GenerateCode (children[1]);
+				GenerateCode (children[1]);
 
-			int secondIndex = m_CurrentRegisterIndex - 1;
+				int secondIndex = m_CurrentRegisterIndex - 1;
 
-			EmitInstruction (InstructionType::CMP, firstIndex, secondIndex);
-			EmitInstruction (InstructionType::JE, "jumpNode");
-			EmitLabel();
+				EmitInstruction (InstructionType::CMP, firstIndex, secondIndex);
+				EmitInstruction (InstructionType::JE, "jumpNode");
+				EmitLabel();
+				break;
 		}
 	}
 

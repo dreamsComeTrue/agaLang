@@ -21,11 +21,33 @@ namespace aga
 		virtual void Evaluate ()
 		{
 			std::string code = "";
-			
+
 			if (m_Operator == "==")
 			{
 				code = instructions[InstructionType::MUL].word;
 			}
+			else
+				if (m_Operator == "<=")
+				{
+					code = instructions[InstructionType::MUL].word;
+				}
+				else
+					if (m_Operator == "<")
+					{
+						code = instructions[InstructionType::MUL].word;
+					}
+
+					else
+						if (m_Operator == ">=")
+						{
+							code = instructions[InstructionType::MUL].word;
+						}
+
+						else
+							if (m_Operator == ">")
+							{
+								code = instructions[InstructionType::MUL].word;
+							}
 
 			m_AllocationBlock.SetCode (code);
 

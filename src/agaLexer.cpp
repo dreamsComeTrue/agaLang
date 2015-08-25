@@ -26,26 +26,39 @@ namespace aga
 		int lastColumn;
 		int lastLine;
 
-		m_CurrentCharacter = GetNextCharacter();
+		GetNextCharacter();
+
+		long begin = m_CurrentPosition;
+		long beginColumn = m_CurrentColumn;
+
+		if (m_CurrentCharacter == '\n')
+		{
+			return agaToken ("\n", TokenEndOfLine, m_CurrentLine, beginColumn, beginColumn + 1, m_CurrentPosition);
+		}
+
+		if (m_CurrentCharacter == 0)
+		{
+			return agaToken ("", TokenEndOfFile, m_CurrentLine, beginColumn, beginColumn, m_CurrentPosition);
+		}
 
 		//	Skip any whitespaces
 		while (isWhiteSpace (m_CurrentCharacter))
 		{
-			m_CurrentCharacter = GetNextCharacter();
+			GetNextCharacter();
 		}
 
 		//	Parse identifier
 		if (isAlpha (m_CurrentCharacter))
 		{
-			long begin = m_CurrentPosition;
-			long beginColumn = m_CurrentColumn;
+			begin = m_CurrentPosition;
+			beginColumn = m_CurrentColumn;
 
 			while (isAlphaNumeric (m_CurrentCharacter))
 			{
 				lastColumn = m_CurrentColumn;
 				lastLine = m_CurrentLine;
 
-				m_CurrentCharacter = GetNextCharacter();
+				GetNextCharacter();
 			}
 
 			long end = m_CurrentPosition;
@@ -71,18 +84,18 @@ namespace aga
 					lastColumn = m_CurrentColumn;
 					lastLine = m_CurrentLine;
 
-					m_CurrentCharacter = GetNextCharacter();
+					GetNextCharacter();
 				}
 
 				//	Check, if we have a float number?
 				if (m_CurrentCharacter == '.')
 				{
 					//	Skip a 'dot' separator
-					m_CurrentCharacter = GetNextCharacter();
+					GetNextCharacter();
 
 					while (isDigit (m_CurrentCharacter))
 					{
-						m_CurrentCharacter = GetNextCharacter();
+						GetNextCharacter();
 					}
 
 					long end = m_CurrentPosition;
@@ -112,7 +125,7 @@ namespace aga
 
 						do
 						{
-							m_CurrentCharacter = GetNextCharacter();
+							GetNextCharacter();
 
 							if (m_CurrentCharacter == 0)
 							{
@@ -200,12 +213,44 @@ namespace aga
 						if (CheckNextCharacter() == '=')
 						{
 							GetNextCharacter();
-							
+
 							token = agaToken ("==", TokenSameAs, m_CurrentLine, m_CurrentColumn, m_CurrentColumn + 1, m_CurrentPosition);
 						}
 						else
 						{
 							token = agaToken ("=", TokenEquals, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
+						}
+
+						break;
+					}
+
+					case '<':
+					{
+						if (CheckNextCharacter() == '=')
+						{
+							GetNextCharacter();
+
+							token = agaToken ("<=", TokenLessEqualThan, m_CurrentLine, m_CurrentColumn, m_CurrentColumn + 1, m_CurrentPosition);
+						}
+						else
+						{
+							token = agaToken ("<", TokenLessThan, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
+						}
+
+						break;
+					}
+
+					case '>':
+					{
+						if (CheckNextCharacter() == '=')
+						{
+							GetNextCharacter();
+
+							token = agaToken (">=", TokenGreaterEqualThan, m_CurrentLine, m_CurrentColumn, m_CurrentColumn + 1, m_CurrentPosition);
+						}
+						else
+						{
+							token = agaToken ("<", TokenGreaterThan, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
 						}
 
 						break;
@@ -223,9 +268,9 @@ namespace aga
 						break;
 					}
 
-					case '<':
+					case ',':
 					{
-						token = agaToken ("<", TokenLeftBrace, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
+						token = agaToken (",", TokenComma, m_CurrentLine, m_CurrentColumn, m_CurrentColumn, m_CurrentPosition);
 						break;
 					}
 
@@ -235,14 +280,14 @@ namespace aga
 						long beginColumn = m_CurrentColumn;
 
 						//	Skip a 'dot' separator
-						m_CurrentCharacter = GetNextCharacter();
+						GetNextCharacter();
 
 						while (isDigit (m_CurrentCharacter))
 						{
 							lastColumn = m_CurrentColumn;
 							lastLine = m_CurrentLine;
 
-							m_CurrentCharacter = GetNextCharacter();
+							GetNextCharacter();
 						}
 
 						long end = m_CurrentPosition;
@@ -264,7 +309,9 @@ namespace aga
 					}
 				}
 
-		//	Skip any remainding whitespaces
+		return token;
+
+		//	Skip any remaining whitespaces
 		if (isWhiteSpace (m_Source[m_CurrentPosition + 1]))
 		{
 			bool backTrack = false;
@@ -275,7 +322,17 @@ namespace aga
 				lastLine = m_CurrentLine;
 				backTrack = true;
 
-				m_CurrentCharacter = GetNextCharacter();
+				if (m_CurrentCharacter == '\n')
+				{
+					return agaToken ("\n", TokenEndOfLine, m_CurrentLine, beginColumn, beginColumn + 1, m_CurrentPosition);
+				}
+
+				if (m_CurrentCharacter == 0)
+				{
+					return agaToken ("", TokenEndOfFile, m_CurrentLine, beginColumn, beginColumn, m_CurrentPosition);
+				}
+
+				GetNextCharacter();
 			}
 			while (isWhiteSpace (m_CurrentCharacter));
 
@@ -356,7 +413,9 @@ namespace aga
 			++m_CurrentLine;
 		}
 
-		return m_Source[m_CurrentPosition];
+		m_CurrentCharacter = m_Source[m_CurrentPosition];
+
+		return m_CurrentCharacter;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -377,6 +436,8 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 }
+
+
 
 
 

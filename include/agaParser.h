@@ -2,6 +2,8 @@
 #define _AGA_PARSER_H_
 
 #include <string>
+#include <vector>
+#include <initializer_list>
 
 #include "agaToken.h"
 
@@ -31,6 +33,7 @@ namespace aga
 		
 		bool AcceptToken (TokenType compareToken);
 		bool AssertToken (TokenType tokenToCheck);
+		bool AssertTokens (std::initializer_list<TokenType> tokens);
 		
 	private:
 		agaLexer*	m_Lexer;
