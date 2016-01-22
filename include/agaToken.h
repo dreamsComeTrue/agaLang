@@ -8,8 +8,8 @@ namespace aga
 	enum TokenType
 	{
 	    TokenUnknown,
-		TokenEndOfFile,						//	EOF	
-		TokenEndOfLine,						//	EOL
+	    TokenEndOfFile,						//	EOF
+	    TokenEndOfLine,						//	EOL
 	    TokenInteger,						//	323
 	    TokenFloat,							//	12.453
 	    TokenString,						//	"abc"
@@ -22,18 +22,21 @@ namespace aga
 	    TokenIdentifier,					//	hello
 	    TokenColon,							//	:
 	    TokenSemicolon,						//	;
-		TokenComma,							//	,
+	    TokenComma,							//	,
 	    TokenPlus,							//	+
 	    TokenMinus,							//	-
 	    TokenMultiply,						//	*
 	    TokenDivide,						//	/
 	    TokenEquals,						//	=
-	    TokenPound,							//	#
+        TokenHash,							//	#
 	    TokenSameAs,						//	==
 	    TokenLessThan,						//	<
 	    TokenLessEqualThan,					//	<=
 	    TokenGreaterThan,					//	>
 	    TokenGreaterEqualThan,				//	>=
+	    TokenOr,							//	||
+	    TokenAnd,							//	&&
+	    TokenNot,							//	!
 	};
 
 	struct TokenWord
@@ -65,12 +68,15 @@ namespace aga
 		{"Multiply"       , TokenMultiply},
 		{"Divide"       , TokenDivide},
 		{"Equals"       , TokenEquals},
-		{"Pound"       , TokenPound},
+        {"Hash"       , TokenHash},
 		{"SameAs"       , TokenSameAs},
 		{"LessThan"       , TokenLessThan},
 		{"LessEqualThan"       , TokenLessEqualThan},
 		{"GreaterThan"       , TokenGreaterThan},
 		{"GreaterEqualThan"       , TokenGreaterEqualThan},
+		{"Or"       , TokenOr},
+		{"And"       , TokenAnd},
+		{"Not"       , TokenNot},
 	};
 
 	int const numTokenWords = sizeof (tokenWords) /sizeof (TokenWord);

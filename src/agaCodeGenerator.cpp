@@ -5,6 +5,7 @@
 #include "agaASTAssignment.h"
 #include "agaASTBinaryOperator.h"
 #include "agaASTBooleanRelation.h"
+#include "agaASTLogicalRelation.h"
 #include "agaASTProgram.h"
 #include "agaUtils.h"
 
@@ -69,25 +70,30 @@ namespace aga
 					GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (node));
 				}
 				else
-				{
-					std::string codeLine = node->GetAllocationBlock().GetCode();
-
-					if (node->GetType() == ConstantNode || node->GetType() == VariableNode)
+					if (node->GetType() == ASTNodeType::LogicalRelationNode)
 					{
-						EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex,  node->GetAllocationBlock().GetCode());
+						GenerateLogicalRelation (static_cast<agaASTLogicalRelation *> (node));
 					}
-
-					m_CurrentRegisterIndex++;
-
-					//	AddCodeLine (codeLine);
-
-					std::vector<agaASTNode *> children = node->GetChildren();
-
-					for (int i = 0; i < children.size(); ++i)
+					else
 					{
-						GenerateCode (children[i]);
+						std::string codeLine = node->GetAllocationBlock().GetCode();
+
+						if (node->GetType() == ConstantNode || node->GetType() == VariableNode)
+						{
+							EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex,  node->GetAllocationBlock().GetCode());
+						}
+
+						m_CurrentRegisterIndex++;
+
+						//	AddCodeLine (codeLine);
+
+						std::vector<agaASTNode *> children = node->GetChildren();
+
+						for (int i = 0; i < children.size(); ++i)
+						{
+							GenerateCode (children[i]);
+						}
 					}
-				}
 
 		return m_Code;
 	}
@@ -182,6 +188,65 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
+	void agaCodeGenerator::GenerateLogicalRelation (agaASTLogicalRelation *node)
+	{
+		std::vector<agaASTNode *> children = node->GetChildren();
+
+		switch (node->GetToken().GetType())
+		{
+			case TokenAnd:
+			{
+				GenerateCode (children[0]);
+
+				int firstIndex = m_CurrentRegisterIndex - 1;
+
+				GenerateCode (children[1]);
+
+				int secondIndex = m_CurrentRegisterIndex - 1;
+
+				EmitInstruction (InstructionType::CMP, firstIndex, secondIndex);
+
+				std::string labelJNE = GenerateLabel();
+				std::string labelJE = GenerateLabel();
+
+				EmitInstruction (InstructionType::JNE, labelJNE);
+				EmitInstruction (InstructionType::MOV, secondIndex, GetTrueLiteral());
+				EmitInstruction (InstructionType::JMP, labelJE);
+				EmitLabel(labelJNE);
+				EmitInstruction (InstructionType::MOV, secondIndex, GetFalseLiteral());
+				EmitLabel(labelJE);
+
+				break;
+			}
+
+			case TokenOr:
+			{
+				GenerateCode (children[0]);
+
+				int firstIndex = m_CurrentRegisterIndex - 1;
+
+				GenerateCode (children[1]);
+
+				int secondIndex = m_CurrentRegisterIndex - 1;
+
+				EmitInstruction (InstructionType::CMP, firstIndex, secondIndex);
+
+				std::string labelJE = GenerateLabel();
+				std::string labelJNE = GenerateLabel();
+
+				EmitInstruction (InstructionType::JE, labelJE);
+				EmitInstruction (InstructionType::MOV, secondIndex, GetTrueLiteral());
+				EmitLabel(labelJE);
+				EmitInstruction (InstructionType::MOV, secondIndex, GetFalseLiteral());
+				EmitLabel(labelJNE);
+
+				break;
+			}
+		}
+	}
+
+	//--------------------------------------------------------------------------------
+
 	void agaCodeGenerator::EmitInstruction (InstructionType instruction, const std::string &label)
 	{
 		std::string codeLine = std::string (instructions[instruction].word) + " .";
@@ -225,15 +290,47 @@ namespace aga
 
 	//--------------------------------------------------------------------------------
 
-	const std::string &agaCodeGenerator::EmitLabel()
+	const std::string agaCodeGenerator::GenerateLabel()
 	{
 		std::string codeLine = "_l" + ToString (m_CurrentLabelIndex);
-
+		
 		++m_CurrentLabelIndex;
+
+		return codeLine;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	const std::string agaCodeGenerator::EmitLabel (const std::string &overrideLabel)
+	{
+		std::string codeLine;
+
+		if (overrideLabel != "")
+		{
+			codeLine = overrideLabel;
+		}
+		else
+		{
+			codeLine = GenerateLabel();
+		}
 
 		AddCodeLine (codeLine + ":");
 
 		return codeLine;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	const std::string agaCodeGenerator::GetTrueLiteral()
+	{
+		return "CONST 1";
+	}
+
+	//--------------------------------------------------------------------------------
+
+	const std::string agaCodeGenerator::GetFalseLiteral()
+	{
+		return "CONST 0";
 	}
 
 	//--------------------------------------------------------------------------------

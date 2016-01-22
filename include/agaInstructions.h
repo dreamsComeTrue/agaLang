@@ -12,8 +12,14 @@ namespace aga
 	    SUB,
 	    MUL,
 	    DIV,
-		CMP,
+	    CMP,
+		JMP,
 	    JE,
+	    JNE,
+	    JG,
+	    JGE,
+	    JL,
+	    JLE,
 	    Unknown,
 	};
 
@@ -31,7 +37,13 @@ namespace aga
 		{"MUL"       , MUL},
 		{"DIV"       , DIV},
 		{"CMP"       , CMP},
-		{"JE"       , JE},
+		{"JMP"       , JMP},
+		{"JE"        , JE},
+		{"JNE"       , JNE},
+		{"JG"        , JG},
+		{"JGE"       , JGE},
+		{"JL"        , JL},
+		{"JLE"       , JLE},
 	};
 
 	int const instructionsCount = sizeof (instructions) / sizeof (Instruction);

@@ -9,6 +9,7 @@ Current language features:
 
 --	Language specification (constantly evolving):
 
+```
 @LITERAL 												import statement
 [IDENTIFIER STATEMENTS]									basic block
 [IDENTIFIER &EXPRESSION:EXPRESSION:STATEMENTS] 			loop
@@ -64,3 +65,4 @@ ret = fun: var 2
 instance = NewType:
 instance.x = 4
 instance.Method: 2 1
+```

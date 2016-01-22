@@ -10,6 +10,7 @@ namespace aga
 	    Assignment,
 		BinaryOperation,
 	    BooleanRelation,
+		LogicalRelation,
 	    IntegerConst,
 	    FloatConst,
 	    StringConst,

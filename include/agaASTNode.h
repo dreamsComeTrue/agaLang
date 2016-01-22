@@ -17,7 +17,8 @@ namespace aga
 		AssignmentNode,
 	    ExpressionNode,
 	    BinaryOperationNode,
-		BooleanRelationNode
+		BooleanRelationNode,
+		LogicalRelationNode
 	};
 
 	class agaASTNode

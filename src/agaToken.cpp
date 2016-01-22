@@ -8,6 +8,8 @@ namespace aga
 	std::string TokenNames[] = 
 	{
 		"Unknown",
+        "EOF",
+        "EOL",
 		"TokenInteger",
 		"TokenFloat",
 		"String",
@@ -20,12 +22,21 @@ namespace aga
 		"Identifier",
 		"Colon",
 		"Semicolon",
+        "Comma",
 		"Plus",
 		"Minus",
 		"Multiply",
 		"Divide",
 		"Equals",
-		"Pound"
+        "Hash",
+        "SameAs",
+        "LessThan",
+        "LessEqualThan",
+        "GreaterThan",
+        "GreaterEqualThan",
+        "Or",
+        "And",
+        "Not"
 	};
 	
 	//--------------------------------------------------------------------------------

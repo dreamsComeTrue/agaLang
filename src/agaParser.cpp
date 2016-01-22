@@ -10,6 +10,7 @@
 #include "agaASTVariable.h"
 #include "agaASTBinaryOperator.h"
 #include "agaASTBooleanRelation.h"
+#include "agaASTLogicalRelation.h"
 #include "agaASTProgram.h"
 #include "agaASTAssignment.h"
 
@@ -40,7 +41,7 @@ namespace aga
 
 		agaASTProgram *program = new agaASTProgram ();
 
-		while (m_CurrentToken.GetType() != TokenUnknown)
+		while (m_CurrentToken.GetType() != TokenUnknown && m_CurrentToken.GetType() != TokenEndOfFile)
 		{
 			if (AcceptToken (TokenIdentifier))
 			{
@@ -52,7 +53,7 @@ namespace aga
 			ReadNextToken();
 		}
 
-		if (m_CurrentToken.GetType() != TokenUnknown)
+		if (m_CurrentToken.GetType() != TokenUnknown && m_CurrentToken.GetType() != TokenEndOfFile)
 		{
 			throw agaException (UNEXPECTED_TOKEN_EOF, tokenWords[m_CurrentToken.GetType()].word, m_CurrentToken.GetLiteral().c_str());
 		}
@@ -78,7 +79,9 @@ namespace aga
 
 			assignment = new agaASTAssignment (token, expression);
 
-			AssertTokens ({TokenComma, TokenEndOfLine, TokenEndOfFile});
+            m_CurrentToken.Print();
+
+			AssertTokens ( {TokenComma, TokenEndOfLine, TokenEndOfFile});
 		}
 
 		return assignment;
@@ -88,7 +91,65 @@ namespace aga
 
 	agaASTNode *agaParser::ParseExpression()
 	{
-		return ParseBooleanRelation();
+		return ParseBooleanExpression();
+	}
+
+	//--------------------------------------------------------------------------------
+
+	agaASTNode *agaParser::ParseBooleanExpression()
+	{
+		agaASTNode *booleanTerm = ParseBooleanTerm();
+
+		if (AcceptToken (TokenOr))
+		{
+			agaToken token = m_CurrentToken;
+
+			ReadNextToken();
+
+			agaASTNode *booleanExpression = ParseBooleanExpression ();
+
+			return new agaASTLogicalRelation (token, booleanTerm, booleanExpression);
+		}
+
+		return booleanTerm;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	agaASTNode *agaParser::ParseBooleanTerm()
+	{
+		agaASTNode *booleanFactor = ParseBooleanFactor();
+
+		if (AcceptToken (TokenAnd))
+		{
+			agaToken token = m_CurrentToken;
+
+			ReadNextToken();
+
+			agaASTNode *booleanTerm = ParseBooleanTerm ();
+
+			return new agaASTLogicalRelation (token, booleanFactor, booleanTerm);
+		}
+
+		return booleanFactor;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	agaASTNode *agaParser::ParseBooleanFactor()
+	{
+		if (AcceptToken (TokenNot))
+		{
+			agaToken token = m_CurrentToken;
+
+			ReadNextToken();
+
+			agaASTNode *booleanRelation = ParseBooleanRelation ();
+
+			return new agaASTLogicalRelation (token, booleanRelation);
+		}
+
+		return ParseBooleanRelation ();
 	}
 
 	//--------------------------------------------------------------------------------
@@ -179,7 +240,7 @@ namespace aga
 		if (AcceptToken (TokenIdentifier))
 		{
 			result = new agaASTVariable (m_CurrentToken);
-		}
+        }
 		else
 			if (AcceptToken (TokenInteger))
 			{

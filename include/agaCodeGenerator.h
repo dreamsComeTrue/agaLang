@@ -11,6 +11,7 @@ namespace aga
 	class agaASTExpression;
 	class agaASTBinaryOperator;
 	class agaASTBooleanRelation;
+	class agaASTLogicalRelation;
 	class agaASTNode;
 	class agaASTProgram;
 	class agaASTAssignment;
@@ -30,12 +31,16 @@ namespace aga
 		void GenerateAssignment (agaASTAssignment *node);
 		void GenerateBinaryExpression (agaASTBinaryOperator *node);
 		void GenerateBooleanRelation (agaASTBooleanRelation *node);
+		void GenerateLogicalRelation (agaASTLogicalRelation *node);
 
 		void EmitInstruction (InstructionType instruction, const std::string &label);
 		void EmitInstruction (InstructionType instruction, int dstRegisterIndex, int srcRegisterIndex);
 		void EmitInstruction (InstructionType instruction, int registerIndex, const std::string &label);
 		void EmitInstruction (InstructionType instruction, const std::string &label, int registerIndex);
-		const std::string& EmitLabel();
+		const std::string GenerateLabel ();
+		const std::string EmitLabel (const std::string &overrideLabel = "");
+		const std::string GetTrueLiteral ();
+		const std::string GetFalseLiteral ();
 
 		InstructionType GetInstructionTypeFromCode (const std::string &code);
 
