@@ -2,7 +2,6 @@
 
 #include "agaConstants.h"
 #include "agaLexer.h"
-#include "agaLogger.h"
 #include "agaException.h"
 
 namespace aga

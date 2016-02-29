@@ -20,6 +20,11 @@ namespace aga
 	    JGE,
 	    JL,
 	    JLE,
+        SETG,
+        SETL,
+        SETLE,
+        SETGE,
+        SETE,
 	    Unknown,
 	};
 
@@ -44,6 +49,11 @@ namespace aga
 		{"JGE"       , JGE},
 		{"JL"        , JL},
 		{"JLE"       , JLE},
+        {"SETG"      , SETG},
+        {"SETL"      , SETL},
+        {"SETLE"     , SETLE},
+        {"SETGE"     , SETGE},
+        {"SETE"      , SETE},
 	};
 
 	int const instructionsCount = sizeof (instructions) / sizeof (Instruction);

@@ -33,7 +33,8 @@ namespace aga
 		void GenerateBooleanRelation (agaASTBooleanRelation *node);
 		void GenerateLogicalRelation (agaASTLogicalRelation *node);
 
-		void EmitInstruction (InstructionType instruction, const std::string &label);
+        void EmitInstruction (InstructionType instruction, const std::string &label = "");
+        void EmitInstruction (InstructionType instruction, int dstRegisterIndex);
 		void EmitInstruction (InstructionType instruction, int dstRegisterIndex, int srcRegisterIndex);
 		void EmitInstruction (InstructionType instruction, int registerIndex, const std::string &label);
 		void EmitInstruction (InstructionType instruction, const std::string &label, int registerIndex);

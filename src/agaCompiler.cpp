@@ -39,7 +39,7 @@ namespace aga
 		{			
 			const std::string& lineOfCode = generatedCode[i];
 			
-			agaLogger::PrintMemory (i, lineOfCode);
+            agaLogger::PrintMemory (i, lineOfCode);
 		}
 	}
 

@@ -23,7 +23,7 @@ namespace aga
 
 		if (endLine)
 		{
-			std::cout << std::endl;
+            std::cout << std::endl;
 		}
 	}
 
@@ -31,7 +31,7 @@ namespace aga
 
 	void agaLogger::log (const char *logInfo, bool endLine)
 	{
-		std::cout << logInfo;
+        std::cout << logInfo;
 
 		if (endLine)
 		{
@@ -43,11 +43,11 @@ namespace aga
 
 	void agaLogger::log (const std::string &logInfo, bool endLine)
 	{
-		std::cout << logInfo;
+        std::cout << logInfo;
 
 		if (endLine)
 		{
-			std::cout << std::endl;
+            std::cout << std::endl;
 		}
 	}
 
