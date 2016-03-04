@@ -29,6 +29,11 @@ namespace aga
 			m_AllocationBlock.SetCode (line);
 		}
 
+        virtual const std::string ToString ()
+        {
+            return m_Token.GetLiteral();
+        }
+
 	private:
 		agaTypeInfo		m_TypeInfo;
 	};

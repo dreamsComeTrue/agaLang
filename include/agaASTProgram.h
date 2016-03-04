@@ -3,33 +3,38 @@
 
 #include <vector>
 
-#include "agaASTNode.h"
+#include "agaASTBlock.h"
 
 namespace aga
 {
-	class agaASTProgram : public agaASTNode
-	{
-	public:
-		agaASTProgram () :
-			agaASTNode (ProgramNode) { }
+    class agaASTProgram : public agaASTNode
+    {
+    public:
+        agaASTProgram () :
+            agaASTNode (ProgramNode) { }
 
-		void AddStatement (agaASTNode *node)
-		{
-			m_Statements.push_back (node);
-		}
-		
-		const std::vector<agaASTNode *>& GetStatements ()
-		{
-			return m_Statements;
-		}
+        void AddBlock (agaASTBlock *blockNode)
+        {
+            m_Blocks.push_back (blockNode);
+        }
 
-		virtual void Evaluate ()
-		{
-		}
+        const std::vector<agaASTBlock *>& GetBlocks ()
+        {
+            return m_Blocks;
+        }
 
-	private:
-		std::vector<agaASTNode *> m_Statements;
-	};
+        virtual void Evaluate ()
+        {
+        }
+
+        virtual const std::string ToString ()
+        {
+            return "KOT";
+        }
+
+    private:
+        std::vector<agaASTBlock *> m_Blocks;
+    };
 }
 
 #endif	//	_AGA_ASTPROGRAM_H_

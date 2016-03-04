@@ -5,35 +5,40 @@
 
 namespace aga
 {
-	enum ExpressionType
-	{
-	    Assignment,
-		BinaryOperation,
-	    BooleanRelation,
-		LogicalRelation,
-	    IntegerConst,
-	    FloatConst,
-	    StringConst,
-	    Variable
-	};
+    enum ExpressionType
+    {
+        Assignment,
+        BinaryOperation,
+        BooleanRelation,
+        LogicalRelation,
+        IntegerConst,
+        FloatConst,
+        StringConst,
+        Variable
+    };
 
-	class agaASTExpression : public agaASTNode
-	{
-	public:
-		agaASTExpression (ASTNodeType nodeType, ExpressionType expressionType, agaToken token) :
-			agaASTNode (nodeType, token),
-			m_Type (expressionType) { }
+    class agaASTExpression : public agaASTNode
+    {
+    public:
+        agaASTExpression (ASTNodeType nodeType, ExpressionType expressionType, agaToken token) :
+            agaASTNode (nodeType, token),
+            m_Type (expressionType) { }
 
-		ExpressionType GetExpressionType ()
-		{
-			return m_Type;
-		}
+        ExpressionType GetExpressionType ()
+        {
+            return m_Type;
+        }
 
-		virtual void Evaluate () = 0;
+        virtual void Evaluate () = 0;
 
-	protected:
-		ExpressionType	m_Type;
-	};
+        virtual const std::string ToString ()
+        {
+            return "KOT";
+        }
+
+    protected:
+        ExpressionType	m_Type;
+    };
 }
 
 #endif	//	_AGA_ASTEXPRESSION_H_

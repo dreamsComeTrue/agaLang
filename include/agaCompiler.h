@@ -8,6 +8,7 @@ namespace aga
 {
 	class agaParser;
 	class agaCodeGenerator;
+    class agaASTProgram;
 	
 	class agaCompiler
 	{
@@ -16,7 +17,8 @@ namespace aga
 		
 		~agaCompiler ();
 		
-		void CompileSource (const std::string& code);
+        agaASTProgram* CompileSource (const std::string& code);
+        void GenerateCode (agaASTProgram* programNode);
 		
 	private:
 		std::unique_ptr<agaParser>			m_Parser;

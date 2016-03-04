@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "agaToken.h"
 #include "agaLogger.h"
 
@@ -84,6 +86,17 @@ namespace aga
 	{
 		agaLogger::log(true, "[s: s <d, d:d>]", TokenNames[m_Type].c_str(), m_Literal.c_str(), m_Line, m_BeginColumn, m_EndColumn);
 	}
+
+    //--------------------------------------------------------------------------------
+
+    const std::string agaToken::GetInfo () const
+    {
+        std::stringstream sstream;
+
+        sstream << "[" << tokenWords[m_Type].word << " <" << (m_Line) << ", " << m_BeginColumn << ":" << m_EndColumn << ">]";
+
+        return sstream.str();
+    }
 	
 	//--------------------------------------------------------------------------------
 }

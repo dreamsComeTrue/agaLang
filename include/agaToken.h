@@ -23,7 +23,8 @@ namespace aga
 	    TokenColon,							//	:
 	    TokenSemicolon,						//	;
 	    TokenComma,							//	,
-	    TokenPlus,							//	+
+        TokenDot,							//	.
+        TokenPlus,							//	+
 	    TokenMinus,							//	-
 	    TokenMultiply,						//	*
 	    TokenDivide,						//	/
@@ -37,6 +38,7 @@ namespace aga
 	    TokenOr,							//	||
 	    TokenAnd,							//	&&
 	    TokenNot,							//	!
+        TokenQuestion,  					//	?
 	};
 
 	struct TokenWord
@@ -63,6 +65,7 @@ namespace aga
 		{"Colon"       , TokenColon},
 		{"Semicolon"       , TokenSemicolon},
 		{"Comma"       , TokenComma},
+        {"Dot"       , TokenDot},
 		{"Plus"       , TokenPlus},
 		{"Minus"       , TokenMinus},
 		{"Multiply"       , TokenMultiply},
@@ -77,6 +80,7 @@ namespace aga
 		{"Or"       , TokenOr},
 		{"And"       , TokenAnd},
 		{"Not"       , TokenNot},
+        {"Question"       , TokenQuestion},
 	};
 
 	int const numTokenWords = sizeof (tokenWords) /sizeof (TokenWord);
@@ -92,6 +96,8 @@ namespace aga
 		const std::string &GetLiteral () const;
 
 		void Print ();
+
+        const std::string GetInfo () const;
 
 	private:
 		std::string	m_Literal;

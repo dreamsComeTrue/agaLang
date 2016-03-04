@@ -12,10 +12,8 @@ namespace aga
 	public:
 		agaASTBooleanRelation (agaToken token, agaASTNode *left, agaASTNode *right) :
 			agaASTExpression (BooleanRelationNode, BooleanRelation, token),
-			m_Operator (token.GetLiteral())
+            m_Operator (token.GetLiteral()), m_Left (left), m_Right (right)
 		{
-			m_Children.push_back (left);
-			m_Children.push_back (right);
 		}
 
 		virtual void Evaluate ()
@@ -51,11 +49,28 @@ namespace aga
 
 			m_AllocationBlock.SetCode (code);
 
-			m_Children[0]->Evaluate ();
-			m_Children[1]->Evaluate ();
+            m_Left->Evaluate ();
+            m_Right->Evaluate ();
 		}
 
+        agaASTNode* GetLeft ()
+        {
+            return m_Left;
+        }
+
+        agaASTNode* GetRight ()
+        {
+            return m_Right;
+        }
+
+        virtual const std::string ToString ()
+        {
+            return "KOT";
+        }
+
 	private:
+        agaASTNode      *m_Left;
+        agaASTNode      *m_Right;
 		std::string		m_Operator;
 	};
 }

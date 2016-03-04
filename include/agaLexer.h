@@ -14,6 +14,7 @@ namespace aga
 		
 		agaToken GetNextToken ();
 		agaToken CheckNextToken ();
+        bool CheckUntilToken (TokenType checkToken, std::initializer_list<TokenType> beforeTokens);
 		bool HasMoreTokens ();
 		
 	private:

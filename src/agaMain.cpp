@@ -5,7 +5,6 @@
 #include "agaConstants.h"
 #include "agaCompiler.h"
 #include "agaLogger.h"
-#include "agaException.h"
 
 using namespace aga;
 
@@ -14,44 +13,38 @@ using namespace aga;
  */
 int main (int argc, char **argv) 
 {	
-	if (argc == 1)
-	{
-		agaLogger::log (AGALANG_USAGE);
-		
-		return - 1;
-	}
-	
-	std::ifstream stream;
+    if (argc == 1)
+    {
+        agaLogger::log (AGALANG_USAGE);
 
-	stream.open (argv[1]);
-	stream.unsetf (std::ios_base::skipws);
+        return - 1;
+    }
 
-	if (!stream)
-	{
-		agaLogger::log (FILE_OPEN_ERROR); 
-		
-		return -1;
-	}
+    std::ifstream stream;
 
-	std::string source = "";
-	
-	stream.seekg (0, std::ios::end);   
-	source.reserve (stream.tellg ());
-	stream.seekg (0, std::ios::beg);
-	
-	source.assign ((std::istreambuf_iterator<char> (stream)), std::istreambuf_iterator<char> ());
-	stream.close ();
-	
-	agaCompiler compiler;
-  
-	try
-	{
-		compiler.CompileSource (source);
-	}
-	catch (agaException& e)
-	{
-		agaLogger::log (e.what ());
-	}
+    stream.open (argv[1]);
+    stream.unsetf (std::ios_base::skipws);
 
-	return 0;
+    if (!stream)
+    {
+        agaLogger::log (FILE_OPEN_ERROR);
+
+        return -1;
+    }
+
+    std::string source = "";
+
+    stream.seekg (0, std::ios::end);
+    source.reserve (stream.tellg ());
+    stream.seekg (0, std::ios::beg);
+
+    source.assign ((std::istreambuf_iterator<char> (stream)), std::istreambuf_iterator<char> ());
+    stream.close ();
+
+    agaCompiler compiler;
+
+    agaASTProgram* program = compiler.CompileSource (source);
+    compiler.GenerateCode(program);
+
+    return 0;
 }

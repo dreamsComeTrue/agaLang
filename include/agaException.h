@@ -12,7 +12,7 @@ namespace aga
 		agaException (const std::string& message);
 		agaException (const char* fmt...);
 		
-		~agaException () throw() {};
+        ~agaException () throw() {}
 		const char* what () throw ();		
 		
 	private:

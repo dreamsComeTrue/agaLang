@@ -25,18 +25,39 @@ IDENTIFIER: EXPRESSION_LIST								function call
 
 @file//.aga
 
-[&i = 1 : i < 100 :
+&i = 1 : i < 100 :
+[
 	x += i
 	
-	[? i > 2 
-		Function: d,
-		x++
+    ? i > 2 :
+        Function d,
+        sin 90 80,
 
-		[Function d: d]
-	]
+        "Zrob co nastepuje":
+            funkcja 1
+            repeat 2 4
+
+            mojaFunkcja = minX maxX :
+                ? minX > maxX :
+                    minX
+                :
+                    maxX
+
+            print mojaFunkcja 1 2
+         .
+
+         basic_block:
+         .
+
+        ++x
+
+
+    a = a + 2
+
+   [Function d: d]
 ]
 
-[fun x y: x + y]
+fun x y: x + y
 
 var = input:
 ret = fun: var 2

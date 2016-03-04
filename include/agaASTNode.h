@@ -9,60 +9,69 @@
 
 namespace aga
 {
-	enum ASTNodeType
-	{
-	    ProgramNode,
-	    ConstantNode,
-	    VariableNode,
-		AssignmentNode,
-	    ExpressionNode,
-	    BinaryOperationNode,
-		BooleanRelationNode,
-		LogicalRelationNode
-	};
+    enum ASTNodeType
+    {
+        ProgramNode,
+        BlockNode,
+        FunctionCallNode,
+        ConstantNode,
+        VariableNode,
+        AssignmentNode,
+        ExpressionNode,
+        BinaryOperationNode,
+        BooleanRelationNode,
+        LogicalRelationNode
+    };
 
-	class agaASTNode
-	{
-	public:
-		agaASTNode (ASTNodeType type) :
-			m_Type (type) { }
+    struct ASTNodeWord
+    {
+        const char   *word;
+        ASTNodeType   nodeType;
+    };
 
-		agaASTNode (ASTNodeType type, agaToken token) :
-			m_Type (type), m_Token (token) { }
+    ASTNodeWord const nodeWords[] =
+    {
+        {"ProgramNode"        , ProgramNode},
+        {"BlockNode"          , BlockNode},
+        {"FunctionCallNode"   , FunctionCallNode},
+        {"ConstantNode"       , ConstantNode},
+        {"VariableNode"       , VariableNode},
+        {"AssignmentNode"     , AssignmentNode},
+    };
 
-		std::vector<agaASTNode *> GetChildren ()
-		{
-			return m_Children;
-		}
+    class agaASTNode
+    {
+    public:
+        agaASTNode (ASTNodeType type) :
+            m_Type (type) { }
 
-		void AddChild (agaASTNode *child)
-		{
-			m_Children.push_back (child);
-		}
+        agaASTNode (ASTNodeType type, agaToken token) :
+            m_Type (type), m_Token (token) { }
 
-		const ASTNodeType GetType () const
-		{
-			return m_Type;
-		}
+        const ASTNodeType GetType () const
+        {
+            return m_Type;
+        }
 
-		agaAllocationBlock &GetAllocationBlock ()
-		{
-			return m_AllocationBlock;
-		}
+        agaAllocationBlock &GetAllocationBlock ()
+        {
+            return m_AllocationBlock;
+        }
 
-		const agaToken &GetToken () const
-		{
-			return m_Token;
-		}
+        const agaToken &GetToken () const
+        {
+            return m_Token;
+        }
 
-		virtual void Evaluate () = 0;
+        virtual void Evaluate () = 0;
 
-	protected:
-		ASTNodeType					m_Type;
-		agaToken					m_Token;
-		agaAllocationBlock			m_AllocationBlock;
-		std::vector<agaASTNode *> 	m_Children;
-	};
+        virtual const std::string ToString () = 0;
+
+    protected:
+        ASTNodeType					m_Type;
+        agaToken					m_Token;
+        agaAllocationBlock			m_AllocationBlock;
+    };
 }
 
 #endif	//	_AGA_ASTNODE_H_

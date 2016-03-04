@@ -8,21 +8,26 @@
 
 namespace aga
 {
-	class agaASTVariable : public agaASTExpression
-	{
-	public:
-		agaASTVariable (agaToken token) :
-			agaASTExpression (VariableNode, Variable, token)	{ }
+    class agaASTVariable : public agaASTExpression
+    {
+    public:
+        agaASTVariable (agaToken token) :
+            agaASTExpression (VariableNode, Variable, token)	{ }
 
-		virtual void Evaluate ()
-		{
-			std::string line = "VAR " + m_Token.GetLiteral();
-			
-			m_AllocationBlock.SetCode(line);
-		}
+        virtual void Evaluate ()
+        {
+            std::string line = "VAR " + m_Token.GetLiteral();
 
-	private:
-	};
+            m_AllocationBlock.SetCode(line);
+        }
+
+        virtual const std::string ToString ()
+        {
+            return m_Token.GetLiteral();
+        }
+
+    private:
+    };
 }
 
 #endif	//	_AGA_ASTVARIABLE_H_
