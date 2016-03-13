@@ -5,85 +5,62 @@ Current language features:
 - own written lexer
 - top down parser 
 - Abstract Syntax Tree generation
-- intermediate assembly representation
+- intermediate assembly representation / possibly using LLVM
 
 --	Language specification (constantly evolving):
 
 ```
-@LITERAL 												import statement
-[IDENTIFIER STATEMENTS]									basic block
-[IDENTIFIER &EXPRESSION:EXPRESSION:STATEMENTS] 			loop
-[IDENTIFIER?EXPRESSION: STATEMENTS] 					condition block
-IDENTIFIER = EXPRESSION              					assignment
+::identifier											import statement
+<identifier> <param1> <param n...> : <statements> .		basic block/function definition
+&expression:expression:statements .			 			loop
+?expression basic_block_1 basic_block_n .				condition block
+identifier = expression									assignment
 ,														statement separator (optional at EOL)
-[IDENTIFIER IDENTIFIER_LIST : STATEMENTS]				function definition
-IDENTIFIER: EXPRESSION_LIST								function call
+function_name param1 param_n 							function call
 //														single line comment
 /*	*/													multiple line comments
 
 --	Sample code
 
-@file//.aga
+::file
+::system
 
 &i = 1 : i < 100 :
-[
-	x += i
+    x += i
 	
-    ? i > 2 :
-        Function d,
-        sin 90 80,
-
-        "Zrob co nastepuje":
-            funkcja 1
+    ? i > 2
+    : Function d, sin 90 80 .
+    :
+        "do these steps":
+            function_run 1
             repeat 2 4
 
-            mojaFunkcja = minX maxX :
-                ? minX > maxX :
-                    minX
-                :
-                    maxX
-
-            print mojaFunkcja 1 2
-         .
-
-         basic_block:
-         .
-
-        ++x
-
+        myFunction minX maxX :
+            ? minX > maxX
+            : minX .
+            : maxX
+              print myFunction 1 2 .
 
     a = a + 2
 
-   [Function d: d]
-]
+    Function d:
+        d + 5.
+.
 
 fun x y: x + y
 
-var = input:
+var = input
 ret = fun: var 2
 
-[NamedCondition1 ? ret > 3:
-	[NamedBlock 2+2]
-	[OtherBlock par: par + "_kot"]
-
-	[NamedLoop & i=0:i<ret:++i,
-		print: "Hello " i
-		OtherFunc: 2 4
-
-		list = [NamedBlock, NamedBlock, NamedBlock]
-		OtherBlock: "hey"
-	]
-]
-
-[NewType:
+NewType:
 	x = 0
 	y = 0
 	
-	[NewType: x = y = 0]
-	[Method a b: x = a, y = b]
-]
+    NewType: x = y = 0.
+    Method a b: x = a, y = b.
+.
 
-instance = NewType:
+instance = NewType
 instance.x = 4
-instance.Method: 2 1
+instance.Method 2 1
 ```
