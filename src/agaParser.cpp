@@ -15,6 +15,7 @@
 #include "agaASTBlock.h"
 #include "agaASTAssignment.h"
 #include "agaASTFunctionCall.h"
+#include "agaASTMatch.h"
 
 namespace aga
 {
@@ -42,7 +43,7 @@ namespace aga
         ReadNextToken ();
         while (m_CurrentToken.GetType () != TokenUnknown && m_CurrentToken.GetType () != TokenEndOfFile)
         {
-            if (AcceptToken (TokenIdentifier))
+            if (AcceptToken (TokenIdentifier) || AcceptToken (TokenColon))
             {
                 agaASTBlock *block = static_cast<agaASTBlock *> (ParseBlock (globalBlock));
 
@@ -71,26 +72,29 @@ namespace aga
     {
         agaASTBlock *block = new agaASTBlock (parentBlock);
 
-        if (AcceptToken (TokenIdentifier))
+        if (AcceptToken (TokenIdentifier) || AcceptToken (TokenColon))
         {
-            block->SetName (m_CurrentToken.GetLiteral ());
-
-            // Read block identifier
-            ReadNextToken ();
-
-            //  Read all optional parameters
-            while (!AcceptToken (TokenColon))
+            if (AcceptToken (TokenIdentifier))
             {
-                if (AcceptToken (TokenIdentifier))
-                {
-                    block->AddParameter (m_CurrentToken.GetLiteral ());
-                }
-                else
-                {
-                    ThrowExpecting ({TokenIdentifier, TokenColon});
-                }
+                block->SetName (m_CurrentToken.GetLiteral ());
 
+                // Read block identifier
                 ReadNextToken ();
+
+                //  Read all optional parameters
+                while (!AcceptToken (TokenColon))
+                {
+                    if (AcceptToken (TokenIdentifier))
+                    {
+                        block->AddParameter (m_CurrentToken.GetLiteral ());
+                    }
+                    else
+                    {
+                        ThrowExpecting ({TokenIdentifier, TokenColon});
+                    }
+
+                    ReadNextToken ();
+                }
             }
 
             AssertToken (TokenColon);
@@ -105,13 +109,13 @@ namespace aga
             {
                 agaASTNode *partNode = nullptr;
 
-                if (AcceptToken (TokenIdentifier) && CheckNextToken (TokenEquals))
+                if (AcceptToken (TokenIdentifier))
                 {
-                    partNode = ParseAssignment ();
-                }
-                else if (AcceptToken (TokenIdentifier))
-                {
-                    if (m_Lexer->CheckUntilToken (TokenColon, {TokenIdentifier}))
+                    if (CheckNextToken (TokenEquals))
+                    {
+                        partNode = ParseAssignment ();
+                    }
+                    else if (m_Lexer->CheckUntilToken (TokenColon, {TokenIdentifier}))
                     {
                         partNode = ParseBlock (block);
                     }
@@ -119,6 +123,10 @@ namespace aga
                     {
                         partNode = ParseFunctionCall ();
                     }
+                }
+                else if (AcceptToken (TokenQuestion))
+                {
+                    partNode = ParseMatch ();
                 }
                 else
                 {
@@ -145,6 +153,9 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
+    /*
+     * FunctionName arg1 arg2 (AnotherFunction arg0)
+     */
     agaASTNode *agaParser::ParseFunctionCall ()
     {
         agaASTFunctionCall *functionCall = nullptr;
@@ -160,7 +171,7 @@ namespace aga
             TokenType tokenType = m_CurrentToken.GetType ();
 
             while (tokenType != TokenComma && tokenType != TokenEndOfLine && tokenType != TokenEndOfFile &&
-                   tokenType != TokenRightParenthesis)
+                   tokenType != TokenRightParenthesis && tokenType != TokenDot)
             {
                 agaASTNode *parameter = ParseExpression ();
 
@@ -175,6 +186,9 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
+    /*
+     * var = expr [EOL EOF , .]
+     */
     agaASTNode *agaParser::ParseAssignment ()
     {
         agaASTNode *assignment = nullptr;
@@ -198,6 +212,50 @@ namespace aga
         }
 
         return assignment;
+    }
+
+    //--------------------------------------------------------------------------------
+
+    /*
+     * ?expr :
+     * |expr expr
+     * .
+     */
+    agaASTNode *agaParser::ParseMatch ()
+    {
+        agaASTMatch *match = nullptr;
+
+        if (AcceptToken (TokenQuestion))
+        {
+            ReadNextToken ();
+
+            agaASTExpression *matchExpression = static_cast<agaASTExpression *> (ParseExpression ());
+
+            match = new agaASTMatch ();
+
+            match->SetExpression (matchExpression);
+
+            //  Read optional EOL
+            ReadEOL ();
+
+            TokenType tokenType = m_CurrentToken.GetType ();
+
+            while (tokenType != TokenEndOfFile && tokenType != TokenDot)
+            {
+                agaASTNode *caseBlock = ParseBlock (nullptr);
+
+                match->AddCase (caseBlock);
+
+                tokenType = m_CurrentToken.GetType ();
+            }
+
+            ReadEOL ();
+
+            AssertToken (TokenDot);
+            ReadNextToken ();
+        }
+
+        return match;
     }
 
     //--------------------------------------------------------------------------------

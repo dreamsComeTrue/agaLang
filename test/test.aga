@@ -1,9 +1,13 @@
 sin x:
-    x = x * 1
-    sin a (cos 2 + a) (tan 4 (fun aa bb)), fun a+1 b fun
+    ? 2+2
+        : x = 1, funkcja 2.
+        : x = 0.
+    .
 
-    ?a > b :
+    a = 2 + 3
 .
+
+: empty function call.
 
 main:
     sin 90

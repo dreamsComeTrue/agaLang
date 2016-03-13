@@ -9,17 +9,14 @@
 #include "agaASTProgram.h"
 #include "agaASTBlock.h"
 #include "agaASTFunctionCall.h"
+#include "agaASTMatch.h"
 #include "agaUtils.h"
 
 namespace aga
 {
     //--------------------------------------------------------------------------------
 
-    agaCodeGenerator::agaCodeGenerator() :
-        m_CurrentRegisterIndex (1),
-        m_CurrentLabelIndex (0)
-    {
-    }
+    agaCodeGenerator::agaCodeGenerator () : m_CurrentRegisterIndex (1), m_CurrentLabelIndex (0) {}
 
     //--------------------------------------------------------------------------------
 
@@ -39,11 +36,11 @@ namespace aga
 
     const std::vector<std::string> &agaCodeGenerator::GenerateCode (agaASTProgram *program)
     {
-        std::vector<agaASTBlock *> blocks = program->GetBlocks();
+        std::vector<agaASTBlock *> blocks = program->GetBlocks ();
 
-        for (agaASTBlock*& block : blocks)
+        for (agaASTBlock *&block : blocks)
         {
-            block->Evaluate();
+            block->Evaluate ();
 
             GenerateCode (block);
         }
@@ -55,76 +52,75 @@ namespace aga
 
     const std::vector<std::string> &agaCodeGenerator::GenerateCode (agaASTNode *node)
     {
-        switch (node->GetType())
+        switch (node->GetType ())
         {
-            case ASTNodeType::BlockNode:
+        case ASTNodeType::BlockNode:
+        {
+            agaASTBlock *block = static_cast<agaASTBlock *> (node);
+
+            AddCodeLine (block->ToString ());
+
+            std::vector<agaASTNode *> statements = block->GetStatements ();
+
+            for (agaASTNode *statement : statements)
             {
-                agaASTBlock* block = static_cast<agaASTBlock *> (node);
-                std::string header = "> " + block->GetName();
+                statement->Evaluate ();
 
-                if (!block->GetParameters().empty())
-                {
-                    header += " [ ";
-                }
-
-                for (const std::string& parameter : block->GetParameters())
-                {
-                    header += parameter + " ";
-                }
-
-                if (!block->GetParameters().empty())
-                {
-                    header += "]";
-                }
-
-                AddCodeLine (header);
-
-                std::vector<agaASTNode *> statements = block->GetStatements();
-
-                for (agaASTNode* statement : statements)
-                {
-                    statement->Evaluate();
-
-                    GenerateCode (statement);
-                }
-
-                AddCodeLine ("< " + block->GetName());
+                GenerateCode (statement);
             }
-                break;
 
-            case ASTNodeType::FunctionCallNode:
+            AddCodeLine ("< " + block->GetName ());
+        }
+        break;
+
+        case ASTNodeType::FunctionCallNode:
+        {
+            agaASTFunctionCall *functionCall = static_cast<agaASTFunctionCall *> (node);
+
+            AddCodeLine (functionCall->ToString ());
+        }
+        break;
+
+        case ASTNodeType::MatchNode:
+        {
+            agaASTMatch *match = static_cast<agaASTMatch *> (node);
+
+            AddCodeLine (match->ToString ());
+
+            for (agaASTNode *statement : match->GetCases ())
             {
-                agaASTFunctionCall* functionCall = static_cast<agaASTFunctionCall *> (node);
+                statement->Evaluate ();
 
-                AddCodeLine (functionCall->ToString());
+                GenerateCode (statement);
             }
-                break;
+        }
+        break;
 
-            case ASTNodeType::AssignmentNode:
-                GenerateAssignment (static_cast<agaASTAssignment *> (node));
-                break;
+        case ASTNodeType::AssignmentNode:
+            GenerateAssignment (static_cast<agaASTAssignment *> (node));
+            break;
 
-            case ASTNodeType::BinaryOperationNode:
-                GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (node));
-                break;
+        case ASTNodeType::BinaryOperationNode:
+            GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (node));
+            break;
 
-            case ASTNodeType::BooleanRelationNode:
-                GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (node));
-                break;
+        case ASTNodeType::BooleanRelationNode:
+            GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (node));
+            break;
 
-            case ASTNodeType::LogicalRelationNode:
-                GenerateLogicalRelation (static_cast<agaASTLogicalRelation *> (node));
-                break;
+        case ASTNodeType::LogicalRelationNode:
+            GenerateLogicalRelation (static_cast<agaASTLogicalRelation *> (node));
+            break;
 
-            default:
-                if (node->GetType() == ConstantNode || node->GetType() == VariableNode)
-                {
-                    EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex,  node->GetAllocationBlock().GetCode());
-                }
+        default:
+            if (node->GetType () == ConstantNode || node->GetType () == VariableNode)
+            {
+                EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, node->GetAllocationBlock ().GetCode ());
+            }
 
-                ++m_CurrentRegisterIndex;
+            ++m_CurrentRegisterIndex;
 
-                break;
+            break;
         }
 
         return m_Code;
@@ -134,28 +130,28 @@ namespace aga
 
     void agaCodeGenerator::GenerateAssignment (agaASTAssignment *node)
     {
-        agaASTExpression *expression = node->GetExpression();
+        agaASTExpression *expression = node->GetExpression ();
 
-        expression->Evaluate();
+        expression->Evaluate ();
 
         GenerateCode (expression);
 
-        node->Evaluate();
+        node->Evaluate ();
 
-        EmitInstruction (InstructionType::MOV, node->GetAllocationBlock().GetCode(), m_CurrentRegisterIndex - 1);
+        EmitInstruction (InstructionType::MOV, node->GetAllocationBlock ().GetCode (), m_CurrentRegisterIndex - 1);
     }
 
     //--------------------------------------------------------------------------------
 
     void agaCodeGenerator::GenerateBinaryExpression (agaASTBinaryOperator *node)
     {
-        node->Evaluate();
+        node->Evaluate ();
 
-        agaASTNode* left = node->GetLeft();
-        agaASTNode* right = node->GetRight();
+        agaASTNode *left = node->GetLeft ();
+        agaASTNode *right = node->GetRight ();
 
-        ASTNodeType leftType = left->GetType();
-        ASTNodeType rightType = right->GetType();
+        ASTNodeType leftType = left->GetType ();
+        ASTNodeType rightType = right->GetType ();
 
         if (leftType == ASTNodeType::BinaryOperationNode)
         {
@@ -165,7 +161,7 @@ namespace aga
 
         if (leftType == ASTNodeType::BooleanRelationNode)
         {
-            GenerateBooleanRelation(static_cast<agaASTBooleanRelation *> (left));
+            GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (left));
             left->GetAllocationBlock ().SetRegisterIndex (m_CurrentRegisterIndex - 1);
         }
 
@@ -183,22 +179,22 @@ namespace aga
 
         if (leftType != ASTNodeType::BinaryOperationNode && leftType != ASTNodeType::BooleanRelationNode)
         {
-            EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, left->GetAllocationBlock().GetCode());
+            EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, left->GetAllocationBlock ().GetCode ());
         }
         else
         {
-            EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, left->GetAllocationBlock().GetRegisterIndex ());
+            EmitInstruction (InstructionType::MOV, m_CurrentRegisterIndex, left->GetAllocationBlock ().GetRegisterIndex ());
         }
 
-        InstructionType instructionType = GetInstructionTypeFromCode (node->GetAllocationBlock().GetCode());
+        InstructionType instructionType = GetInstructionTypeFromCode (node->GetAllocationBlock ().GetCode ());
 
         if (rightType != ASTNodeType::BinaryOperationNode && rightType != ASTNodeType::BooleanRelationNode)
         {
-            EmitInstruction (instructionType, m_CurrentRegisterIndex, right->GetAllocationBlock().GetCode());
+            EmitInstruction (instructionType, m_CurrentRegisterIndex, right->GetAllocationBlock ().GetCode ());
         }
         else
         {
-            EmitInstruction (instructionType, m_CurrentRegisterIndex, right->GetAllocationBlock().GetRegisterIndex ());
+            EmitInstruction (instructionType, m_CurrentRegisterIndex, right->GetAllocationBlock ().GetRegisterIndex ());
         }
 
         ++m_CurrentRegisterIndex;
@@ -218,27 +214,27 @@ namespace aga
 
         EmitInstruction (InstructionType::CMP, firstIndex, secondIndex);
 
-        switch (node->GetToken().GetType())
+        switch (node->GetToken ().GetType ())
         {
-            case TokenLessThan:
-                EmitInstruction (InstructionType::SETL, m_CurrentRegisterIndex);
-                break;
+        case TokenLessThan:
+            EmitInstruction (InstructionType::SETL, m_CurrentRegisterIndex);
+            break;
 
-            case TokenLessEqualThan:
-                EmitInstruction (InstructionType::SETLE, m_CurrentRegisterIndex);
-                break;
+        case TokenLessEqualThan:
+            EmitInstruction (InstructionType::SETLE, m_CurrentRegisterIndex);
+            break;
 
-            case TokenGreaterThan:
-                EmitInstruction (InstructionType::SETG, m_CurrentRegisterIndex);
-                break;
+        case TokenGreaterThan:
+            EmitInstruction (InstructionType::SETG, m_CurrentRegisterIndex);
+            break;
 
-            case TokenGreaterEqualThan:
-                EmitInstruction (InstructionType::SETGE, m_CurrentRegisterIndex);
-                break;
+        case TokenGreaterEqualThan:
+            EmitInstruction (InstructionType::SETGE, m_CurrentRegisterIndex);
+            break;
 
-            case TokenSameAs:
-                EmitInstruction (InstructionType::SETE, m_CurrentRegisterIndex);
-                break;
+        case TokenSameAs:
+            EmitInstruction (InstructionType::SETE, m_CurrentRegisterIndex);
+            break;
         }
 
         ++m_CurrentRegisterIndex;
@@ -248,53 +244,53 @@ namespace aga
 
     void agaCodeGenerator::GenerateLogicalRelation (agaASTLogicalRelation *node)
     {
-        GenerateCode (node->GetLeft());
+        GenerateCode (node->GetLeft ());
 
         int firstIndex = m_CurrentRegisterIndex - 1;
 
-        GenerateCode (node->GetRight());
+        GenerateCode (node->GetRight ());
 
         int secondIndex = m_CurrentRegisterIndex - 1;
 
-        switch (node->GetToken().GetType())
+        switch (node->GetToken ().GetType ())
         {
-            case TokenAnd:
-            {
-                std::string labelJE = GenerateLabel();
-                std::string labelJMP = GenerateLabel();
+        case TokenAnd:
+        {
+            std::string labelJE = GenerateLabel ();
+            std::string labelJMP = GenerateLabel ();
 
-                EmitInstruction (InstructionType::CMP, firstIndex, GetFalseLiteral());
-                EmitInstruction (InstructionType::JE, labelJE);
-                EmitInstruction (InstructionType::CMP, secondIndex, GetFalseLiteral());
-                EmitInstruction (InstructionType::JE, labelJE);
-                EmitInstruction (InstructionType::MOV, secondIndex, GetTrueLiteral());
-                EmitInstruction (InstructionType::JMP, labelJMP);
-                EmitLabel(labelJE);
-                EmitInstruction (InstructionType::MOV, secondIndex, GetFalseLiteral());
-                EmitLabel(labelJMP);
+            EmitInstruction (InstructionType::CMP, firstIndex, GetFalseLiteral ());
+            EmitInstruction (InstructionType::JE, labelJE);
+            EmitInstruction (InstructionType::CMP, secondIndex, GetFalseLiteral ());
+            EmitInstruction (InstructionType::JE, labelJE);
+            EmitInstruction (InstructionType::MOV, secondIndex, GetTrueLiteral ());
+            EmitInstruction (InstructionType::JMP, labelJMP);
+            EmitLabel (labelJE);
+            EmitInstruction (InstructionType::MOV, secondIndex, GetFalseLiteral ());
+            EmitLabel (labelJMP);
 
-                break;
-            }
+            break;
+        }
 
-            case TokenOr:
-            {
-                std::string labelJNE = GenerateLabel();
-                std::string labelJE = GenerateLabel();
-                std::string labelJMP = GenerateLabel();
+        case TokenOr:
+        {
+            std::string labelJNE = GenerateLabel ();
+            std::string labelJE = GenerateLabel ();
+            std::string labelJMP = GenerateLabel ();
 
-                EmitInstruction (InstructionType::CMP, firstIndex, GetFalseLiteral());
-                EmitInstruction (InstructionType::JNE, labelJNE);
-                EmitInstruction (InstructionType::CMP, secondIndex, GetFalseLiteral());
-                EmitInstruction (InstructionType::JE, labelJE);
-                EmitLabel(labelJNE);
-                EmitInstruction (InstructionType::MOV, secondIndex, GetTrueLiteral());
-                EmitInstruction (InstructionType::JMP, labelJMP);
-                EmitLabel(labelJE);
-                EmitInstruction (InstructionType::MOV, secondIndex, GetFalseLiteral());
-                EmitLabel(labelJMP);
+            EmitInstruction (InstructionType::CMP, firstIndex, GetFalseLiteral ());
+            EmitInstruction (InstructionType::JNE, labelJNE);
+            EmitInstruction (InstructionType::CMP, secondIndex, GetFalseLiteral ());
+            EmitInstruction (InstructionType::JE, labelJE);
+            EmitLabel (labelJNE);
+            EmitInstruction (InstructionType::MOV, secondIndex, GetTrueLiteral ());
+            EmitInstruction (InstructionType::JMP, labelJMP);
+            EmitLabel (labelJE);
+            EmitInstruction (InstructionType::MOV, secondIndex, GetFalseLiteral ());
+            EmitLabel (labelJMP);
 
-                break;
-            }
+            break;
+        }
         }
     }
 
@@ -346,14 +342,14 @@ namespace aga
     {
         std::string codeLine = std::string (instructions[instruction].word);
         codeLine += " " + value;
-        codeLine +=  ", #" + ToString (registerIndex);
+        codeLine += ", #" + ToString (registerIndex);
 
         AddCodeLine (codeLine, 1);
     }
 
     //--------------------------------------------------------------------------------
 
-    const std::string agaCodeGenerator::GenerateLabel()
+    const std::string agaCodeGenerator::GenerateLabel ()
     {
         std::string codeLine = "_l" + ToString (m_CurrentLabelIndex);
 
@@ -374,7 +370,7 @@ namespace aga
         }
         else
         {
-            codeLine = GenerateLabel();
+            codeLine = GenerateLabel ();
         }
 
         AddCodeLine (codeLine + ":");
@@ -384,17 +380,11 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    const std::string agaCodeGenerator::GetTrueLiteral()
-    {
-        return "CONST 1";
-    }
+    const std::string agaCodeGenerator::GetTrueLiteral () { return "CONST 1"; }
 
     //--------------------------------------------------------------------------------
 
-    const std::string agaCodeGenerator::GetFalseLiteral()
-    {
-        return "CONST 0";
-    }
+    const std::string agaCodeGenerator::GetFalseLiteral () { return "CONST 0"; }
 
     //--------------------------------------------------------------------------------
 

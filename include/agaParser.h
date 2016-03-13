@@ -29,6 +29,7 @@ namespace aga
         agaASTNode* ParseBlock (agaASTBlock* parentBlock);
         agaASTNode* ParseFunctionCall ();
         agaASTNode* ParseExpression ();
+        agaASTNode* ParseMatch ();
         agaASTNode* ParseBooleanExpression ();
         agaASTNode* ParseBooleanTerm ();
         agaASTNode* ParseBooleanFactor ();

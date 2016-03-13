@@ -7,32 +7,26 @@ namespace aga
 {
     class agaASTAssignment : public agaASTExpression
     {
-    public:
-        agaASTAssignment (agaToken token, agaASTExpression *expression) :
-            agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, token),
-            m_Expression (expression)
-        {}
-
-        agaASTExpression* GetExpression () const
+      public:
+        agaASTAssignment (agaToken token, agaASTExpression *expression)
+            : agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, token), m_Expression (expression)
         {
-            return m_Expression;
         }
+
+        agaASTExpression *GetExpression () const { return m_Expression; }
 
         virtual void Evaluate ()
         {
-            std::string code = m_Token.GetLiteral();
+            std::string code = m_Token.GetLiteral ();
 
-            GetAllocationBlock().SetCode (code);
+            GetAllocationBlock ().SetCode (code);
         }
 
-        virtual const std::string ToString ()
-        {
-            return "KOT";
-        }
+        virtual const std::string ToString () { return m_Token.GetLiteral () + " = " + m_Expression->ToString (); }
 
-    protected:
+      protected:
         agaASTExpression *m_Expression;
     };
 }
 
-#endif	//	_AGA_ASTASSIGNMENT_H_
+#endif //	_AGA_ASTASSIGNMENT_H_
