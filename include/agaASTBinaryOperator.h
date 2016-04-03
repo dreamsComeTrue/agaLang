@@ -1,107 +1,76 @@
 #ifndef _AGA_ASTBINARYOPERATOR_H_
 #define _AGA_ASTBINARYOPERATOR_H_
 
-#include "agaASTExpression.h"
 #include "agaASTConstant.h"
+#include "agaASTExpression.h"
 #include "agaInstructions.h"
 
 namespace aga
 {
     class agaASTBinaryOperator : public agaASTExpression
     {
-    public:
-        agaASTBinaryOperator (agaToken token, agaASTNode *left, agaASTNode *right) :
-            agaASTExpression (BinaryOperationNode, BinaryOperation, token),
-            m_Operator (token.GetLiteral().at (0)), m_Left (left), m_Right (right)
+      public:
+        agaASTBinaryOperator (agaToken token, std::shared_ptr<agaASTNode> left, std::shared_ptr<agaASTNode> right)
+            : agaASTExpression (BinaryOperationNode, BinaryOperation, token),
+              m_Operator (token.GetLiteral ().at (0)),
+              m_Left (left),
+              m_Right (right)
         {
         }
 
-        virtual void Evaluate ()
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            long leftLong;
-            double leftDouble;
-            /*	ExpressionType leftType = VariableExpression;
+            llvm::Value *left = m_Left->Evaluate (codeGenerator);
+            llvm::Value *right = m_Right->Evaluate (codeGenerator);
 
-                long rightLong;
-                double rightDouble;
-                ExpressionType rightType = VariableExpression;
+            if (!left || !right)
+            {
+                return nullptr;
+            }
 
-                if (m_Left->GetType() == IntegerExpression)
-                {
-                    //	leftLong = ( (agaASTConstant*) m_Left)->GetLongValue();
-                    leftType = IntegerExpression;
-                }
-                else
-                    if (m_Left->GetType() == FloatExpression)
-                    {
-                        //		leftDouble = ( (agaASTConstant*) m_Left)->GetDoubleValue();
-                        leftType = FloatExpression;
-                    }
-
-                if (m_Right->GetType() == IntegerExpression)
-                {
-                    //	rightLong = ( (agaASTConstant*) m_Right)->GetLongValue();
-                //	rightType = IntegerExpression;
-                }
-                else
-                    if (m_Right->GetType() == FloatExpression)
-                    {
-                        //		rightDouble = ( (agaASTConstant*) m_Right)->GetDoubleValue();
-                        //rightType = Fl;
-                    }
-            */
             std::string code = "";
 
             switch (m_Operator)
             {
-                case '*':
-                    code = instructions[InstructionType::MUL].word;
-                    break;
+            case '*':
+                code = instructions[InstructionType::MUL].word;
+                return codeGenerator->GetBuilder ().CreateMul (left, right, "mul");
 
-                case '+':
-                    code = instructions[InstructionType::ADD].word;
-                    break;
+            case '+':
+                code = instructions[InstructionType::ADD].word;
+                return codeGenerator->GetBuilder ().CreateAdd (left, right, "add");
 
-                case '-':
-                    code = instructions[InstructionType::SUB].word;
-                    break;
+            case '-':
+                code = instructions[InstructionType::SUB].word;
+                return codeGenerator->GetBuilder ().CreateSub (left, right, "sub");
 
-                case '/':
-                    code = instructions[InstructionType::DIV].word;
-                    break;
+            case '/':
+                code = instructions[InstructionType::DIV].word;
+                return codeGenerator->GetBuilder ().CreateSDiv (left, right, "div");
 
-                default
-                :
-                    break;
+            default:
+                break;
             }
 
             m_AllocationBlock.SetCode (code);
 
-            m_Left->Evaluate ();
-            m_Right->Evaluate ();
+            return nullptr;
         }
 
-        agaASTNode* GetLeft ()
-        {
-            return m_Left;
-        }
+        std::shared_ptr<agaASTNode> GetLeft () { return m_Left; }
 
-        agaASTNode* GetRight ()
-        {
-            return m_Right;
-        }
+        std::shared_ptr<agaASTNode> GetRight () { return m_Right; }
 
         virtual const std::string ToString ()
         {
-            return "(" + m_Left->ToString() + " " + m_Operator + " " +
-                    m_Right->ToString() + ")";
+            return "(" + m_Left->ToString () + " " + m_Operator + " " + m_Right->ToString () + ")";
         }
 
-    private:
-        char		m_Operator;
-        agaASTNode	*m_Left;
-        agaASTNode	*m_Right;
+      private:
+        char m_Operator;
+        std::shared_ptr<agaASTNode> m_Left;
+        std::shared_ptr<agaASTNode> m_Right;
     };
 }
 
-#endif	//	_AGA_ASTBINARYOPERATOR_H_
+#endif //	_AGA_ASTBINARYOPERATOR_H_

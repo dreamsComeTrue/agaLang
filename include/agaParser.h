@@ -1,12 +1,13 @@
 #ifndef _AGA_PARSER_H_
 #define _AGA_PARSER_H_
 
+#include <initializer_list>
+#include <memory>
 #include <string>
 #include <vector>
-#include <initializer_list>
 
-#include "agaToken.h"
 #include "agaASTNode.h"
+#include "agaToken.h"
 
 namespace aga
 {
@@ -16,32 +17,33 @@ namespace aga
 
     class agaParser
     {
-    public:
-        agaParser (const std::string& source);
+      public:
+        agaParser (const std::string &source);
         ~agaParser ();
 
-        agaASTProgram* ParseProgram ();
+        std::shared_ptr<agaASTProgram> ParseProgram ();
 
-    private:
+      private:
         //	Internal
         agaToken ReadNextToken ();
 
-        agaASTNode* ParseBlock (agaASTBlock* parentBlock);
-        agaASTNode* ParseFunctionCall ();
-        agaASTNode* ParseExpression ();
-        agaASTNode* ParseMatch ();
-        agaASTNode* ParseBooleanExpression ();
-        agaASTNode* ParseBooleanTerm ();
-        agaASTNode* ParseBooleanFactor ();
-        agaASTNode* ParseBooleanRelation ();
-        agaASTNode* ParseSumExpression ();
-        agaASTNode* ParseAssignment ();
-        agaASTNode* ParseTerm ();
-        agaASTNode* ParseFactor ();
+        std::shared_ptr<agaASTNode> ParseBlock (std::shared_ptr<agaASTBlock> parentBlock);
+        std::shared_ptr<agaASTNode> ParseFunctionCall ();
+        std::shared_ptr<agaASTNode> ParseExpression ();
+        std::shared_ptr<agaASTNode> ParseMatch ();
+        std::shared_ptr<agaASTNode> ParseBooleanExpression ();
+        std::shared_ptr<agaASTNode> ParseBooleanTerm ();
+        std::shared_ptr<agaASTNode> ParseBooleanFactor ();
+        std::shared_ptr<agaASTNode> ParseBooleanRelation ();
+        std::shared_ptr<agaASTNode> ParseSumExpression ();
+        std::shared_ptr<agaASTNode> ParseAssignment ();
+        std::shared_ptr<agaASTNode> ParseTerm ();
+        std::shared_ptr<agaASTNode> ParseFactor ();
 
         bool AcceptToken (TokenType compareToken);
         bool CheckPreviousToken (TokenType compareToken);
         bool CheckNextToken (TokenType compareToken);
+        bool CheckNextTokens (std::initializer_list<TokenType> tokens);
         bool AssertToken (TokenType tokenToCheck);
         bool AssertTokens (std::initializer_list<TokenType> tokens);
 
@@ -50,11 +52,11 @@ namespace aga
         void ThrowExpecting (std::initializer_list<std::string> constructs);
         void ThrowExpecting (std::initializer_list<ASTNodeType> constructs);
 
-    private:
-        agaLexer*	m_Lexer;
-        agaToken	m_LastToken;
-        agaToken	m_CurrentToken;
+      private:
+        agaLexer *m_Lexer;
+        agaToken m_LastToken;
+        agaToken m_CurrentToken;
     };
 }
 
-#endif	//	_AGA_PARSER_H_
+#endif //	_AGA_PARSER_H_

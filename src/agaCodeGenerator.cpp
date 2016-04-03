@@ -1,22 +1,34 @@
 #include <sstream>
 
-#include "agaCodeGenerator.h"
-#include "agaASTExpression.h"
+#include "llvm-c/TargetMachine.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/LLVMContext.h"
+
 #include "agaASTAssignment.h"
 #include "agaASTBinaryOperator.h"
-#include "agaASTBooleanRelation.h"
-#include "agaASTLogicalRelation.h"
-#include "agaASTProgram.h"
 #include "agaASTBlock.h"
+#include "agaASTBooleanRelation.h"
+#include "agaASTExpression.h"
 #include "agaASTFunctionCall.h"
+#include "agaASTLogicalRelation.h"
 #include "agaASTMatch.h"
+#include "agaASTProgram.h"
+#include "agaCodeGenerator.h"
+#include "agaCompiler.h"
 #include "agaUtils.h"
 
 namespace aga
 {
     //--------------------------------------------------------------------------------
 
-    agaCodeGenerator::agaCodeGenerator () : m_CurrentRegisterIndex (1), m_CurrentLabelIndex (0) {}
+    agaCodeGenerator::agaCodeGenerator () : m_Module (nullptr), m_CurrentRegisterIndex (1), m_CurrentLabelIndex (0)
+    {
+        m_IRBuilder = llvm::make_unique<llvm::IRBuilder<>> (llvm::getGlobalContext ());
+    }
+
+    //--------------------------------------------------------------------------------
+
+    agaCodeGenerator::~agaCodeGenerator () {}
 
     //--------------------------------------------------------------------------------
 
@@ -34,48 +46,50 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    const std::vector<std::string> &agaCodeGenerator::GenerateCode (agaASTProgram *program)
+    const std::vector<std::string> &agaCodeGenerator::GenerateCode (agaCompiler *compiler, std::shared_ptr<agaASTProgram> program)
     {
-        std::vector<agaASTBlock *> blocks = program->GetBlocks ();
+        m_Module = llvm::make_unique<llvm::Module> (compiler->GetFileName (), llvm::getGlobalContext ());
 
-        for (agaASTBlock *&block : blocks)
+        std::vector<std::shared_ptr<agaASTBlock>> blocks = program->GetBlocks ();
+
+        for (std::shared_ptr<agaASTBlock> &block : blocks)
         {
-            block->Evaluate ();
-
-            GenerateCode (block);
+            block->Evaluate (this);
         }
+
+        m_Module.get ()->dump ();
 
         return m_Code;
     }
 
     //--------------------------------------------------------------------------------
 
-    const std::vector<std::string> &agaCodeGenerator::GenerateCode (agaASTNode *node)
+    const std::vector<std::string> &agaCodeGenerator::GenerateCode (std::shared_ptr<agaASTNode> node)
     {
         switch (node->GetType ())
         {
         case ASTNodeType::BlockNode:
         {
-            agaASTBlock *block = static_cast<agaASTBlock *> (node);
+            std::shared_ptr<agaASTBlock> block = std::static_pointer_cast<agaASTBlock> (node);
 
             AddCodeLine (block->ToString ());
 
-            std::vector<agaASTNode *> statements = block->GetStatements ();
+            std::vector<std::shared_ptr<agaASTNode>> statements = block->GetStatements ();
 
-            for (agaASTNode *statement : statements)
+            for (std::shared_ptr<agaASTNode> &statement : statements)
             {
-                statement->Evaluate ();
+                statement->Evaluate (this);
 
                 GenerateCode (statement);
             }
 
-            AddCodeLine ("< " + block->GetName ());
+            AddCodeLine ("< " + block->GetName () + " = " + block->GetReturnExpr ()->ToString ());
         }
         break;
 
         case ASTNodeType::FunctionCallNode:
         {
-            agaASTFunctionCall *functionCall = static_cast<agaASTFunctionCall *> (node);
+            std::shared_ptr<agaASTFunctionCall> functionCall = std::static_pointer_cast<agaASTFunctionCall> (node);
 
             AddCodeLine (functionCall->ToString ());
         }
@@ -83,13 +97,13 @@ namespace aga
 
         case ASTNodeType::MatchNode:
         {
-            agaASTMatch *match = static_cast<agaASTMatch *> (node);
+            std::shared_ptr<agaASTMatch> match = std::static_pointer_cast<agaASTMatch> (node);
 
             AddCodeLine (match->ToString ());
 
-            for (agaASTNode *statement : match->GetCases ())
+            for (const std::shared_ptr<agaASTNode> &statement : match->GetCases ())
             {
-                statement->Evaluate ();
+                statement->Evaluate (this);
 
                 GenerateCode (statement);
             }
@@ -97,19 +111,19 @@ namespace aga
         break;
 
         case ASTNodeType::AssignmentNode:
-            GenerateAssignment (static_cast<agaASTAssignment *> (node));
+            GenerateAssignment (std::static_pointer_cast<agaASTAssignment> (node));
             break;
 
         case ASTNodeType::BinaryOperationNode:
-            GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (node));
+            GenerateBinaryExpression (std::static_pointer_cast<agaASTBinaryOperator> (node));
             break;
 
         case ASTNodeType::BooleanRelationNode:
-            GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (node));
+            GenerateBooleanRelation (std::static_pointer_cast<agaASTBooleanRelation> (node));
             break;
 
         case ASTNodeType::LogicalRelationNode:
-            GenerateLogicalRelation (static_cast<agaASTLogicalRelation *> (node));
+            GenerateLogicalRelation (std::static_pointer_cast<agaASTLogicalRelation> (node));
             break;
 
         default:
@@ -128,52 +142,52 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    void agaCodeGenerator::GenerateAssignment (agaASTAssignment *node)
+    void agaCodeGenerator::GenerateAssignment (std::shared_ptr<agaASTAssignment> node)
     {
-        agaASTExpression *expression = node->GetExpression ();
+        std::shared_ptr<agaASTExpression> expression = node->GetExpression ();
 
-        expression->Evaluate ();
+        expression->Evaluate (this);
 
         GenerateCode (expression);
 
-        node->Evaluate ();
+        node->Evaluate (this);
 
         EmitInstruction (InstructionType::MOV, node->GetAllocationBlock ().GetCode (), m_CurrentRegisterIndex - 1);
     }
 
     //--------------------------------------------------------------------------------
 
-    void agaCodeGenerator::GenerateBinaryExpression (agaASTBinaryOperator *node)
+    void agaCodeGenerator::GenerateBinaryExpression (std::shared_ptr<agaASTBinaryOperator> node)
     {
-        node->Evaluate ();
+        node->Evaluate (this);
 
-        agaASTNode *left = node->GetLeft ();
-        agaASTNode *right = node->GetRight ();
+        std::shared_ptr<agaASTNode> left = node->GetLeft ();
+        std::shared_ptr<agaASTNode> right = node->GetRight ();
 
         ASTNodeType leftType = left->GetType ();
         ASTNodeType rightType = right->GetType ();
 
         if (leftType == ASTNodeType::BinaryOperationNode)
         {
-            GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (left));
+            GenerateBinaryExpression (std::static_pointer_cast<agaASTBinaryOperator> (left));
             left->GetAllocationBlock ().SetRegisterIndex (m_CurrentRegisterIndex - 1);
         }
 
         if (leftType == ASTNodeType::BooleanRelationNode)
         {
-            GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (left));
+            GenerateBooleanRelation (std::static_pointer_cast<agaASTBooleanRelation> (left));
             left->GetAllocationBlock ().SetRegisterIndex (m_CurrentRegisterIndex - 1);
         }
 
         if (rightType == ASTNodeType::BinaryOperationNode)
         {
-            GenerateBinaryExpression (static_cast<agaASTBinaryOperator *> (right));
+            GenerateBinaryExpression (std::static_pointer_cast<agaASTBinaryOperator> (right));
             right->GetAllocationBlock ().SetRegisterIndex (m_CurrentRegisterIndex - 1);
         }
 
         if (rightType == ASTNodeType::BooleanRelationNode)
         {
-            GenerateBooleanRelation (static_cast<agaASTBooleanRelation *> (right));
+            GenerateBooleanRelation (std::static_pointer_cast<agaASTBooleanRelation> (right));
             right->GetAllocationBlock ().SetRegisterIndex (m_CurrentRegisterIndex - 1);
         }
 
@@ -202,7 +216,7 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    void agaCodeGenerator::GenerateBooleanRelation (agaASTBooleanRelation *node)
+    void agaCodeGenerator::GenerateBooleanRelation (std::shared_ptr<agaASTBooleanRelation> node)
     {
         GenerateCode (node->GetLeft ());
 
@@ -242,7 +256,7 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    void agaCodeGenerator::GenerateLogicalRelation (agaASTLogicalRelation *node)
+    void agaCodeGenerator::GenerateLogicalRelation (std::shared_ptr<agaASTLogicalRelation> node)
     {
         GenerateCode (node->GetLeft ());
 

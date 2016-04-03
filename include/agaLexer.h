@@ -13,7 +13,7 @@ namespace aga
 		agaLexer (const std::string& source);
 		
 		agaToken GetNextToken ();
-		agaToken CheckNextToken ();
+        agaToken CheckNextToken (unsigned int howMany = 1);
         bool CheckUntilToken (TokenType checkToken, std::initializer_list<TokenType> beforeTokens);
 		bool HasMoreTokens ();
 		

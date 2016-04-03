@@ -2,30 +2,48 @@
 #define _AGA_ASTASSIGNMENT_H_
 
 #include "agaASTExpression.h"
+#include "agaASTVariable.h"
 
 namespace aga
 {
     class agaASTAssignment : public agaASTExpression
     {
       public:
-        agaASTAssignment (agaToken token, agaASTExpression *expression)
-            : agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, token), m_Expression (expression)
+        agaASTAssignment (std::shared_ptr<agaASTVariable> variable, std::shared_ptr<agaASTExpression> expression)
+            : agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, variable->GetToken ()),
+              m_Variable (variable),
+              m_Expression (expression)
         {
         }
 
-        agaASTExpression *GetExpression () const { return m_Expression; }
+        const std::shared_ptr<agaASTExpression> &GetExpression () const { return m_Expression; }
 
-        virtual void Evaluate ()
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            std::string code = m_Token.GetLiteral ();
+            std::map<std::string, llvm::AllocaInst *> &namedValues = codeGenerator->GetNamedValues ();
+            std::string valueName = m_Variable->GetToken ().GetLiteral ();
 
+            if (namedValues.find (valueName) == namedValues.end ())
+            {
+                m_Variable->Evaluate (codeGenerator);
+            }
+
+            llvm::AllocaInst *alloc = namedValues[valueName];
+
+            llvm::Value *expressionValue = m_Expression->Evaluate (codeGenerator);
+            llvm::Value *result = codeGenerator->GetBuilder ().CreateStore (expressionValue, alloc);
+
+            std::string code = m_Token.GetLiteral ();
             GetAllocationBlock ().SetCode (code);
+
+            return result;
         }
 
         virtual const std::string ToString () { return m_Token.GetLiteral () + " = " + m_Expression->ToString (); }
 
       protected:
-        agaASTExpression *m_Expression;
+        std::shared_ptr<agaASTVariable> m_Variable;
+        std::shared_ptr<agaASTExpression> m_Expression;
     };
 }
 

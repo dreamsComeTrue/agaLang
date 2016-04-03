@@ -12,24 +12,21 @@ namespace aga
       public:
         agaASTMatch () : agaASTNode (MatchNode) {}
 
-        void AddCase (agaASTNode *caseExpr) { m_Cases.push_back (caseExpr); }
+        void AddCase (std::shared_ptr<agaASTNode> caseExpr) { m_Cases.push_back (caseExpr); }
 
-        const std::vector<agaASTNode *> &GetCases () { return m_Cases; }
+        const std::vector<std::shared_ptr<agaASTNode>> &GetCases () { return m_Cases; }
 
-        void SetExpression (agaASTNode *expression) { m_Expression = expression; }
+        void SetExpression (std::shared_ptr<agaASTNode> expression) { m_Expression = expression; }
 
-        const agaASTNode *GetExpression () const { return m_Expression; }
+        const std::shared_ptr<agaASTNode> GetExpression () const { return m_Expression; }
 
-        virtual void Evaluate () {}
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
 
-        virtual const std::string ToString ()
-        {
-            return "?" + m_Expression->ToString ();
-        }
+        virtual const std::string ToString () { return "?" + m_Expression->ToString (); }
 
       private:
-        agaASTNode *m_Expression;
-        std::vector<agaASTNode *> m_Cases;
+        std::shared_ptr<agaASTNode> m_Expression;
+        std::vector<std::shared_ptr<agaASTNode>> m_Cases;
     };
 }
 

@@ -9,32 +9,20 @@ namespace aga
 {
     class agaASTProgram : public agaASTNode
     {
-    public:
-        agaASTProgram () :
-            agaASTNode (ProgramNode) { }
+      public:
+        agaASTProgram () : agaASTNode (ProgramNode) {}
 
-        void AddBlock (agaASTBlock *blockNode)
-        {
-            m_Blocks.push_back (blockNode);
-        }
+        void AddBlock (std::shared_ptr<agaASTBlock> blockNode) { m_Blocks.push_back (blockNode); }
 
-        const std::vector<agaASTBlock *>& GetBlocks ()
-        {
-            return m_Blocks;
-        }
+        const std::vector<std::shared_ptr<agaASTBlock>> &GetBlocks () { return m_Blocks; }
 
-        virtual void Evaluate ()
-        {
-        }
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
 
-        virtual const std::string ToString ()
-        {
-            return "KOT";
-        }
+        virtual const std::string ToString () { return "KOT"; }
 
-    private:
-        std::vector<agaASTBlock *> m_Blocks;
+      private:
+        std::vector<std::shared_ptr<agaASTBlock>> m_Blocks;
     };
 }
 
-#endif	//	_AGA_ASTPROGRAM_H_
+#endif //	_AGA_ASTPROGRAM_H_

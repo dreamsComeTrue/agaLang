@@ -1,78 +1,69 @@
 #ifndef _AGA_ASTBOOLEANRELATION_H_
 #define _AGA_ASTBOOLEANRELATION_H_
 
-#include "agaASTExpression.h"
 #include "agaASTConstant.h"
+#include "agaASTExpression.h"
 #include "agaInstructions.h"
 
 namespace aga
 {
-	class agaASTBooleanRelation : public agaASTExpression
-	{
-	public:
-		agaASTBooleanRelation (agaToken token, agaASTNode *left, agaASTNode *right) :
-			agaASTExpression (BooleanRelationNode, BooleanRelation, token),
-            m_Operator (token.GetLiteral()), m_Left (left), m_Right (right)
-		{
-		}
-
-		virtual void Evaluate ()
-		{
-			std::string code = "";
-
-			if (m_Operator == "==")
-			{
-				code = instructions[InstructionType::MUL].word;
-			}
-			else
-				if (m_Operator == "<=")
-				{
-					code = instructions[InstructionType::MUL].word;
-				}
-				else
-					if (m_Operator == "<")
-					{
-						code = instructions[InstructionType::MUL].word;
-					}
-
-					else
-						if (m_Operator == ">=")
-						{
-							code = instructions[InstructionType::MUL].word;
-						}
-
-						else
-							if (m_Operator == ">")
-							{
-								code = instructions[InstructionType::MUL].word;
-							}
-
-			m_AllocationBlock.SetCode (code);
-
-            m_Left->Evaluate ();
-            m_Right->Evaluate ();
-		}
-
-        agaASTNode* GetLeft ()
+    class agaASTBooleanRelation : public agaASTExpression
+    {
+      public:
+        agaASTBooleanRelation (agaToken token, std::shared_ptr<agaASTNode> left, std::shared_ptr<agaASTNode> right)
+            : agaASTExpression (BooleanRelationNode, BooleanRelation, token),
+              m_Operator (token.GetLiteral ()),
+              m_Left (left),
+              m_Right (right)
         {
-            return m_Left;
         }
 
-        agaASTNode* GetRight ()
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            return m_Right;
+            std::string code = "";
+
+            if (m_Operator == "==")
+            {
+                code = instructions[InstructionType::MUL].word;
+            }
+            else if (m_Operator == "<=")
+            {
+                code = instructions[InstructionType::MUL].word;
+            }
+            else if (m_Operator == "<")
+            {
+                code = instructions[InstructionType::MUL].word;
+            }
+
+            else if (m_Operator == ">=")
+            {
+                code = instructions[InstructionType::MUL].word;
+            }
+
+            else if (m_Operator == ">")
+            {
+                code = instructions[InstructionType::MUL].word;
+            }
+
+            m_AllocationBlock.SetCode (code);
+
+            m_Left->Evaluate (codeGenerator);
+            m_Right->Evaluate (codeGenerator);
+
+            return nullptr;
         }
 
-        virtual const std::string ToString ()
-        {
-            return "KOT";
-        }
+        const std::shared_ptr<agaASTNode> &GetLeft () { return m_Left; }
 
-	private:
-        agaASTNode      *m_Left;
-        agaASTNode      *m_Right;
-		std::string		m_Operator;
-	};
+        const std::shared_ptr<agaASTNode> &GetRight () { return m_Right; }
+
+        virtual const std::string ToString () { return "KOT"; }
+
+      private:
+        std::shared_ptr<agaASTNode> m_Left;
+        std::shared_ptr<agaASTNode> m_Right;
+        std::string m_Operator;
+    };
 }
 
-#endif	//	_AGA_ASTBOOLEANRELATION_H_
+#endif //	_AGA_ASTBOOLEANRELATION_H_

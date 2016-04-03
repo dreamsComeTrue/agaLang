@@ -9,41 +9,26 @@ namespace aga
 {
     class agaASTFunctionCall : public agaASTNode
     {
-    public:
-        agaASTFunctionCall () :
-            agaASTNode (FunctionCallNode) { }
+      public:
+        agaASTFunctionCall () : agaASTNode (FunctionCallNode) {}
 
-        void AddParameter (agaASTNode *node)
-        {
-            m_Parameters.push_back (node);
-        }
+        void AddParameter (std::shared_ptr<agaASTNode> node) { m_Parameters.push_back (node); }
 
-        const std::vector<agaASTNode *>& GetParameters ()
-        {
-            return m_Parameters;
-        }
+        const std::vector<std::shared_ptr<agaASTNode>> &GetParameters () { return m_Parameters; }
 
-        void SetName (const std::string& name)
-        {
-            m_Name = name;
-        }
+        void SetName (const std::string &name) { m_Name = name; }
 
-        const std::string& GetName () const
-        {
-            return m_Name;
-        }
+        const std::string &GetName () const { return m_Name; }
 
-        virtual void Evaluate ()
-        {
-        }
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
 
         virtual const std::string ToString ()
         {
             std::string result = "[ " + m_Name;
 
-            for (agaASTNode* param : m_Parameters)
+            for (const std::shared_ptr<agaASTNode>& param : m_Parameters)
             {
-                result += " " + param->ToString();
+                result += " " + param->ToString ();
             }
 
             result += " ]";
@@ -51,10 +36,10 @@ namespace aga
             return result;
         }
 
-    private:
-        std::string               m_Name;
-        std::vector<agaASTNode *> m_Parameters;
+      private:
+        std::string m_Name;
+        std::vector<std::shared_ptr<agaASTNode>> m_Parameters;
     };
 }
 
-#endif	//	_AGA_ASTFUNCTIONCALL_H_
+#endif //	_AGA_ASTFUNCTIONCALL_H_

@@ -4,7 +4,10 @@
 #include <string>
 #include <vector>
 
+#include "llvm/IR/Value.h"
+
 #include "agaAllocationBlock.h"
+#include "agaCodeGenerator.h"
 #include "agaToken.h"
 
 namespace aga
@@ -26,54 +29,38 @@ namespace aga
 
     struct ASTNodeWord
     {
-        const char   *word;
-        ASTNodeType   nodeType;
+        const char *word;
+        ASTNodeType nodeType;
     };
 
-    ASTNodeWord const nodeWords[] =
-    {
-        {"ProgramNode"        , ProgramNode},
-        {"BlockNode"          , BlockNode},
-        {"FunctionCallNode"   , FunctionCallNode},
-        {"MatchNode"          , MatchNode},
-        {"ConstantNode"       , ConstantNode},
-        {"VariableNode"       , VariableNode},
-        {"AssignmentNode"     , AssignmentNode},
+    ASTNodeWord const nodeWords[] = {
+        {"ProgramNode", ProgramNode},       {"BlockNode", BlockNode},       {"FunctionCallNode", FunctionCallNode},
+        {"MatchNode", MatchNode},           {"ConstantNode", ConstantNode}, {"VariableNode", VariableNode},
+        {"AssignmentNode", AssignmentNode},
     };
 
     class agaASTNode
     {
-    public:
-        agaASTNode (ASTNodeType type) :
-            m_Type (type) { }
+      public:
+        agaASTNode (ASTNodeType type) : m_Type (type) {}
 
-        agaASTNode (ASTNodeType type, agaToken token) :
-            m_Type (type), m_Token (token) { }
+        agaASTNode (ASTNodeType type, agaToken token) : m_Type (type), m_Token (token) {}
 
-        const ASTNodeType GetType () const
-        {
-            return m_Type;
-        }
+        const ASTNodeType GetType () const { return m_Type; }
 
-        agaAllocationBlock &GetAllocationBlock ()
-        {
-            return m_AllocationBlock;
-        }
+        agaAllocationBlock &GetAllocationBlock () { return m_AllocationBlock; }
 
-        const agaToken &GetToken () const
-        {
-            return m_Token;
-        }
+        const agaToken &GetToken () const { return m_Token; }
 
-        virtual void Evaluate () = 0;
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) = 0;
 
         virtual const std::string ToString () = 0;
 
-    protected:
-        ASTNodeType					m_Type;
-        agaToken					m_Token;
-        agaAllocationBlock			m_AllocationBlock;
+      protected:
+        ASTNodeType m_Type;
+        agaToken m_Token;
+        agaAllocationBlock m_AllocationBlock;
     };
 }
 
-#endif	//	_AGA_ASTNODE_H_
+#endif //	_AGA_ASTNODE_H_

@@ -10,24 +10,35 @@ namespace aga
 {
     class agaASTVariable : public agaASTExpression
     {
-    public:
-        agaASTVariable (agaToken token) :
-            agaASTExpression (VariableNode, Variable, token)	{ }
+      public:
+        agaASTVariable (agaToken token) : agaASTExpression (VariableNode, Variable, token) {}
 
-        virtual void Evaluate ()
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            std::string line = "VAR " + m_Token.GetLiteral();
+            std::string line = "VAR " + m_Token.GetLiteral ();
 
-            m_AllocationBlock.SetCode(line);
+            m_AllocationBlock.SetCode (line);
+
+            std::map<std::string, llvm::AllocaInst *> &namedValues = codeGenerator->GetNamedValues ();
+
+            if (namedValues.find (m_Token.GetLiteral ()) == namedValues.end ())
+            {
+                llvm::Type *type = llvm::Type::getInt64Ty (codeGenerator->GetModule ().get ()->getContext ());
+                llvm::AllocaInst *allocValue = codeGenerator->GetBuilder ().CreateAlloca (type, nullptr, m_Token.GetLiteral ());
+
+                namedValues[m_Token.GetLiteral ()] = allocValue;
+            }
+
+            llvm::Value *load =
+                codeGenerator->GetBuilder ().CreateLoad (namedValues[m_Token.GetLiteral ()], m_Token.GetLiteral ());
+
+            return load;
         }
 
-        virtual const std::string ToString ()
-        {
-            return m_Token.GetLiteral();
-        }
+        virtual const std::string ToString () { return m_Token.GetLiteral (); }
 
-    private:
+      private:
     };
 }
 
-#endif	//	_AGA_ASTVARIABLE_H_
+#endif //	_AGA_ASTVARIABLE_H_

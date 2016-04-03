@@ -9,7 +9,7 @@ namespace aga
 	//--------------------------------------------------------------------------------
 
 	agaLogger &agaLogger::getInstance ()
-	{
+    {
 		static agaLogger instance;
 
 		return instance;

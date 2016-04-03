@@ -29,7 +29,7 @@ namespace aga
             return m_Type;
         }
 
-        virtual void Evaluate () = 0;
+        virtual llvm::Value* Evaluate (agaCodeGenerator* codeGenerator) = 0;
 
         virtual const std::string ToString ()
         {

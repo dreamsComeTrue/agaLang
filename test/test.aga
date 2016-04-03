@@ -1,14 +1,5 @@
-sin x:
-    ? 2+2
-        : x = 1, funkcja 2.
-        : x = 0.
-    .
-
-    a = 2 + 3
-.
-
-: empty function call.
-
 main:
-    sin 90
-.
+    a := 1
+    b := 2
+    c := a + b
+    = 2+2
