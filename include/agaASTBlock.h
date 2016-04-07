@@ -10,13 +10,13 @@ namespace aga
     class agaASTBlock : public agaASTNode
     {
       public:
-        agaASTBlock (std::shared_ptr<agaASTBlock> parentBlock) : agaASTNode (BlockNode), m_Parent (parentBlock) {}
+        agaASTBlock (std::unique_ptr<agaASTBlock> parentBlock) : agaASTNode (BlockNode), m_Parent (std::move (parentBlock)) {}
 
-        void AddStatement (std::shared_ptr<agaASTNode> node) { m_Statements.push_back (node); }
+        void AddStatement (std::unique_ptr<agaASTNode> &node) { m_Statements.push_back (std::move (node)); }
 
-        const std::vector<std::shared_ptr<agaASTNode>> &GetStatements () { return m_Statements; }
+        const std::vector<std::unique_ptr<agaASTNode>> &GetStatements () { return m_Statements; }
 
-        const std::shared_ptr<agaASTBlock> &GetParent () { return m_Parent; }
+        const std::unique_ptr<agaASTBlock> &GetParent () { return m_Parent; }
 
         void AddParameter (const std::string &parameter) { m_Parameters.push_back (parameter); }
 
@@ -26,13 +26,13 @@ namespace aga
 
         const std::string &GetName () const { return m_Name; }
 
-        void SetReturnExpr (std::shared_ptr<agaASTNode> returnExpr) { m_ReturnExpr = returnExpr; }
+        void SetReturnExpr (std::unique_ptr<agaASTNode> returnExpr) { m_ReturnExpr = std::move (returnExpr); }
 
-        std::shared_ptr<agaASTNode> GetReturnExpr () { return m_ReturnExpr; }
+        const std::unique_ptr<agaASTNode> &GetReturnExpr () { return m_ReturnExpr; }
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            llvm::FunctionType *funcType = llvm::FunctionType::get (llvm::Type::getVoidTy (llvm::getGlobalContext ()), false);
+            llvm::FunctionType *funcType = llvm::FunctionType::get (llvm::Type::getInt64Ty (llvm::getGlobalContext ()), false);
             llvm::Function *function = llvm::Function::Create (funcType, llvm::Function::LinkageTypes::InternalLinkage, m_Name,
                                                                codeGenerator->GetModule ().get ());
 
@@ -46,10 +46,16 @@ namespace aga
             llvm::BasicBlock *basicBlock = llvm::BasicBlock::Create (llvm::getGlobalContext (), "block", function);
             codeGenerator->GetBuilder ().SetInsertPoint (basicBlock);
 
-            for (std::shared_ptr<agaASTNode> &statement : m_Statements)
+            llvm::Value *lastVal = nullptr;
+
+            for (std::unique_ptr<agaASTNode> &statement : m_Statements)
             {
-                statement->Evaluate (codeGenerator);
+                lastVal = statement->Evaluate (codeGenerator);
             }
+
+           // llvm::Value *load = codeGenerator->GetBuilder ().CreateLoad (lastVal);
+
+            codeGenerator->GetBuilder ().CreateRet (lastVal);
 
             return function;
         }
@@ -78,11 +84,11 @@ namespace aga
         }
 
       private:
-        std::shared_ptr<agaASTBlock> m_Parent;
+        std::unique_ptr<agaASTBlock> m_Parent;
         std::string m_Name;
         std::vector<std::string> m_Parameters;
-        std::vector<std::shared_ptr<agaASTNode>> m_Statements;
-        std::shared_ptr<agaASTNode> m_ReturnExpr;
+        std::vector<std::unique_ptr<agaASTNode>> m_Statements;
+        std::unique_ptr<agaASTNode> m_ReturnExpr;
     };
 }
 

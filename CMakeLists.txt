@@ -25,7 +25,7 @@ add_executable(agaLang ${SRC_ALL} ${INC_ALL} ${TEST_ALL})
 
 # Find the libraries that correspond to the LLVM components
 # that we wish to use
-llvm_map_components_to_libnames(llvm_libs core)
+llvm_map_components_to_libnames(llvm_libs core interpreter x86codegen)
 
 # Link against LLVM libraries
 target_link_libraries(agaLang ${llvm_libs})

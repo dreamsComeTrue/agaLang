@@ -43,6 +43,7 @@ namespace aga
     {
       public:
         agaASTNode (ASTNodeType type) : m_Type (type) {}
+        virtual ~agaASTNode () {}
 
         agaASTNode (ASTNodeType type, agaToken token) : m_Type (type), m_Token (token) {}
 

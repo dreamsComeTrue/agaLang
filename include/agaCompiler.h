@@ -4,11 +4,12 @@
 #include <memory>
 #include <string>
 
+#include "agaASTProgram.h"
+
 namespace aga
 {
     class agaParser;
     class agaCodeGenerator;
-    class agaASTProgram;
 
     class agaCompiler
     {
@@ -17,8 +18,8 @@ namespace aga
 
         ~agaCompiler ();
 
-        std::shared_ptr<agaASTProgram> CompileSource (const std::string &fileName, const std::string &code);
-        void GenerateCode (std::shared_ptr<agaASTProgram> programNode);
+        std::unique_ptr<agaASTProgram> CompileSource (const std::string &fileName, const std::string &code);
+        void GenerateCode (std::unique_ptr<agaASTProgram> programNode);
         const std::string &GetFileName () const;
 
       private:

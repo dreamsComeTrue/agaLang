@@ -10,11 +10,11 @@ namespace aga
     class agaASTBinaryOperator : public agaASTExpression
     {
       public:
-        agaASTBinaryOperator (agaToken token, std::shared_ptr<agaASTNode> left, std::shared_ptr<agaASTNode> right)
+        agaASTBinaryOperator (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right)
             : agaASTExpression (BinaryOperationNode, BinaryOperation, token),
               m_Operator (token.GetLiteral ().at (0)),
-              m_Left (left),
-              m_Right (right)
+              m_Left (std::move (left)),
+              m_Right (std::move (right))
         {
         }
 
@@ -57,9 +57,9 @@ namespace aga
             return nullptr;
         }
 
-        std::shared_ptr<agaASTNode> GetLeft () { return m_Left; }
+        const std::unique_ptr<agaASTNode> &GetLeft () { return m_Left; }
 
-        std::shared_ptr<agaASTNode> GetRight () { return m_Right; }
+        const std::unique_ptr<agaASTNode> &GetRight () { return m_Right; }
 
         virtual const std::string ToString ()
         {
@@ -68,8 +68,8 @@ namespace aga
 
       private:
         char m_Operator;
-        std::shared_ptr<agaASTNode> m_Left;
-        std::shared_ptr<agaASTNode> m_Right;
+        std::unique_ptr<agaASTNode> m_Left;
+        std::unique_ptr<agaASTNode> m_Right;
     };
 }
 

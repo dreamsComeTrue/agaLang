@@ -9,14 +9,14 @@ namespace aga
     class agaASTAssignment : public agaASTExpression
     {
       public:
-        agaASTAssignment (std::shared_ptr<agaASTVariable> variable, std::shared_ptr<agaASTExpression> expression)
+        agaASTAssignment (std::unique_ptr<agaASTVariable> &variable, std::unique_ptr<agaASTExpression> &expression)
             : agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, variable->GetToken ()),
-              m_Variable (variable),
-              m_Expression (expression)
+              m_Variable (std::move (variable)),
+              m_Expression (std::move (expression))
         {
         }
 
-        const std::shared_ptr<agaASTExpression> &GetExpression () const { return m_Expression; }
+        const std::unique_ptr<agaASTExpression> &GetExpression () const { return m_Expression; }
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
@@ -36,14 +36,14 @@ namespace aga
             std::string code = m_Token.GetLiteral ();
             GetAllocationBlock ().SetCode (code);
 
-            return result;
+            return expressionValue;
         }
 
         virtual const std::string ToString () { return m_Token.GetLiteral () + " = " + m_Expression->ToString (); }
 
       protected:
-        std::shared_ptr<agaASTVariable> m_Variable;
-        std::shared_ptr<agaASTExpression> m_Expression;
+        std::unique_ptr<agaASTVariable> m_Variable;
+        std::unique_ptr<agaASTExpression> m_Expression;
     };
 }
 

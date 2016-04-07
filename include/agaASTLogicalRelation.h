@@ -10,16 +10,18 @@ namespace aga
     class agaASTLogicalRelation : public agaASTExpression
     {
       public:
-        agaASTLogicalRelation (agaToken token, std::shared_ptr<agaASTNode> child)
-            : agaASTExpression (LogicalRelationNode, LogicalRelation, token), m_Operator (token.GetLiteral ()), m_Left (child)
+        agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> child)
+            : agaASTExpression (LogicalRelationNode, LogicalRelation, token),
+              m_Operator (token.GetLiteral ()),
+              m_Left (std::move (child))
         {
         }
 
-        agaASTLogicalRelation (agaToken token, std::shared_ptr<agaASTNode> left, std::shared_ptr<agaASTNode> right)
+        agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right)
             : agaASTExpression (LogicalRelationNode, LogicalRelation, token),
               m_Operator (token.GetLiteral ()),
-              m_Left (left),
-              m_Right (right)
+              m_Left (std::move (left)),
+              m_Right (std::move (right))
         {
         }
 
@@ -61,15 +63,15 @@ namespace aga
             return nullptr;
         }
 
-        const std::shared_ptr<agaASTNode> &GetLeft () { return m_Left; }
+        const std::unique_ptr<agaASTNode> &GetLeft () { return m_Left; }
 
-        const std::shared_ptr<agaASTNode> &GetRight () { return m_Right; }
+        const std::unique_ptr<agaASTNode> &GetRight () { return m_Right; }
 
         virtual const std::string ToString () { return "KOT"; }
 
       private:
-        std::shared_ptr<agaASTNode> m_Left;
-        std::shared_ptr<agaASTNode> m_Right;
+        std::unique_ptr<agaASTNode> m_Left;
+        std::unique_ptr<agaASTNode> m_Right;
         std::string m_Operator;
     };
 }

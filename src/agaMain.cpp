@@ -46,6 +46,8 @@ std::string GetFileName (const std::string &strPath)
 
 //--------------------------------------------------------------------------------
 
+void DeleteASTProgram (agaASTProgram *f) { delete f; }
+
 /*
  * Program Entry point
  */
@@ -64,9 +66,10 @@ int main (int argc, char **argv)
     if (source != "")
     {
         agaCompiler compiler;
+        std::unique_ptr<agaASTProgram, void (*) (agaASTProgram *)> program (
+            compiler.CompileSource (GetFileName (filePath), source).release (), DeleteASTProgram);
 
-        std::shared_ptr<agaASTProgram> program = compiler.CompileSource (GetFileName (filePath), source);
-        compiler.GenerateCode (program);
+        compiler.GenerateCode (std::unique_ptr<agaASTProgram> (program.release()));
     }
 
     return 0;

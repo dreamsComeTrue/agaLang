@@ -21,24 +21,24 @@ namespace aga
         agaParser (const std::string &source);
         ~agaParser ();
 
-        std::shared_ptr<agaASTProgram> ParseProgram ();
+        std::unique_ptr<agaASTProgram> ParseProgram ();
 
       private:
         //	Internal
         agaToken ReadNextToken ();
 
-        std::shared_ptr<agaASTNode> ParseBlock (std::shared_ptr<agaASTBlock> parentBlock);
-        std::shared_ptr<agaASTNode> ParseFunctionCall ();
-        std::shared_ptr<agaASTNode> ParseExpression ();
-        std::shared_ptr<agaASTNode> ParseMatch ();
-        std::shared_ptr<agaASTNode> ParseBooleanExpression ();
-        std::shared_ptr<agaASTNode> ParseBooleanTerm ();
-        std::shared_ptr<agaASTNode> ParseBooleanFactor ();
-        std::shared_ptr<agaASTNode> ParseBooleanRelation ();
-        std::shared_ptr<agaASTNode> ParseSumExpression ();
-        std::shared_ptr<agaASTNode> ParseAssignment ();
-        std::shared_ptr<agaASTNode> ParseTerm ();
-        std::shared_ptr<agaASTNode> ParseFactor ();
+        std::unique_ptr<agaASTNode> ParseBlock (std::unique_ptr<agaASTBlock> parentBlock);
+        std::unique_ptr<agaASTNode> ParseFunctionCall ();
+        std::unique_ptr<agaASTNode> ParseExpression ();
+        std::unique_ptr<agaASTNode> ParseMatch ();
+        std::unique_ptr<agaASTNode> ParseBooleanExpression ();
+        std::unique_ptr<agaASTNode> ParseBooleanTerm ();
+        std::unique_ptr<agaASTNode> ParseBooleanFactor ();
+        std::unique_ptr<agaASTNode> ParseBooleanRelation ();
+        std::unique_ptr<agaASTNode> ParseSumExpression ();
+        std::unique_ptr<agaASTNode> ParseAssignment ();
+        std::unique_ptr<agaASTNode> ParseTerm ();
+        std::unique_ptr<agaASTNode> ParseFactor ();
 
         bool AcceptToken (TokenType compareToken);
         bool CheckPreviousToken (TokenType compareToken);

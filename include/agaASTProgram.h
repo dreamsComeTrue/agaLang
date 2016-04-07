@@ -11,17 +11,18 @@ namespace aga
     {
       public:
         agaASTProgram () : agaASTNode (ProgramNode) {}
+        virtual ~agaASTProgram () {}
 
-        void AddBlock (std::shared_ptr<agaASTBlock> blockNode) { m_Blocks.push_back (blockNode); }
+        void AddBlock (std::unique_ptr<agaASTBlock> &blockNode) { m_Blocks.push_back (std::move (blockNode)); }
 
-        const std::vector<std::shared_ptr<agaASTBlock>> &GetBlocks () { return m_Blocks; }
+        const std::vector<std::unique_ptr<agaASTBlock>> &GetBlocks () { return m_Blocks; }
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
 
         virtual const std::string ToString () { return "KOT"; }
 
       private:
-        std::vector<std::shared_ptr<agaASTBlock>> m_Blocks;
+        std::vector<std::unique_ptr<agaASTBlock>> m_Blocks;
     };
 }
 
