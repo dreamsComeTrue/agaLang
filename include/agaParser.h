@@ -27,7 +27,7 @@ namespace aga
         //	Internal
         agaToken ReadNextToken ();
 
-        std::unique_ptr<agaASTNode> ParseBlock (std::unique_ptr<agaASTBlock> parentBlock);
+        std::unique_ptr<agaASTNode> ParseBlock ();
         std::unique_ptr<agaASTNode> ParseFunctionCall ();
         std::unique_ptr<agaASTNode> ParseExpression ();
         std::unique_ptr<agaASTNode> ParseMatch ();
@@ -54,6 +54,7 @@ namespace aga
 
       private:
         agaLexer *m_Lexer;
+        std::shared_ptr<agaASTNode> m_CurrentBlock;
         agaToken m_LastToken;
         agaToken m_CurrentToken;
     };

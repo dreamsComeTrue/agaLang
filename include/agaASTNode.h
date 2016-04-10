@@ -42,10 +42,15 @@ namespace aga
     class agaASTNode
     {
       public:
-        agaASTNode (ASTNodeType type) : m_Type (type) {}
+        agaASTNode (ASTNodeType type, std::shared_ptr<agaASTNode> parentNode) : m_Type (type), m_Parent (parentNode) {}
         virtual ~agaASTNode () {}
 
-        agaASTNode (ASTNodeType type, agaToken token) : m_Type (type), m_Token (token) {}
+        agaASTNode (ASTNodeType type, agaToken token, std::shared_ptr<agaASTNode> parentNode)
+            : m_Type (type), m_Token (token), m_Parent (parentNode)
+        {
+        }
+
+        const std::shared_ptr<agaASTNode> GetParent () const { return m_Parent; }
 
         const ASTNodeType GetType () const { return m_Type; }
 
@@ -58,6 +63,7 @@ namespace aga
         virtual const std::string ToString () = 0;
 
       protected:
+        std::shared_ptr<agaASTNode> m_Parent;
         ASTNodeType m_Type;
         agaToken m_Token;
         agaAllocationBlock m_AllocationBlock;

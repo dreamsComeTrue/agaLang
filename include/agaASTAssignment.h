@@ -9,8 +9,9 @@ namespace aga
     class agaASTAssignment : public agaASTExpression
     {
       public:
-        agaASTAssignment (std::unique_ptr<agaASTVariable> &variable, std::unique_ptr<agaASTExpression> &expression)
-            : agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, variable->GetToken ()),
+        agaASTAssignment (std::unique_ptr<agaASTVariable> &variable, std::unique_ptr<agaASTExpression> &expression,
+                          std::shared_ptr<agaASTNode> parentNode)
+            : agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::Assignment, variable->GetToken (), parentNode),
               m_Variable (std::move (variable)),
               m_Expression (std::move (expression))
         {

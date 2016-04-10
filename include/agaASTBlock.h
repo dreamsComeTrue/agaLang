@@ -10,13 +10,11 @@ namespace aga
     class agaASTBlock : public agaASTNode
     {
       public:
-        agaASTBlock (std::unique_ptr<agaASTBlock> parentBlock) : agaASTNode (BlockNode), m_Parent (std::move (parentBlock)) {}
+        agaASTBlock (std::shared_ptr<agaASTNode> parentNode) : agaASTNode (BlockNode, parentNode) {}
 
         void AddStatement (std::unique_ptr<agaASTNode> &node) { m_Statements.push_back (std::move (node)); }
 
         const std::vector<std::unique_ptr<agaASTNode>> &GetStatements () { return m_Statements; }
-
-        const std::unique_ptr<agaASTBlock> &GetParent () { return m_Parent; }
 
         void AddParameter (const std::string &parameter) { m_Parameters.push_back (parameter); }
 
@@ -44,18 +42,23 @@ namespace aga
             }
 
             llvm::BasicBlock *basicBlock = llvm::BasicBlock::Create (llvm::getGlobalContext (), "block", function);
-            codeGenerator->GetBuilder ().SetInsertPoint (basicBlock);
+            llvm::IRBuilder<>& builder = codeGenerator->GetBuilder ();
 
-            llvm::Value *lastVal = nullptr;
+            builder.SetInsertPoint (basicBlock);
+
+            llvm::Value *retVal = nullptr;
 
             for (std::unique_ptr<agaASTNode> &statement : m_Statements)
             {
-                lastVal = statement->Evaluate (codeGenerator);
+                retVal = statement->Evaluate (codeGenerator);
             }
 
-           // llvm::Value *load = codeGenerator->GetBuilder ().CreateLoad (lastVal);
+            if (m_ReturnExpr.get() != nullptr)
+            {
+                retVal = m_ReturnExpr->Evaluate (codeGenerator);
+            }
 
-            codeGenerator->GetBuilder ().CreateRet (lastVal);
+            builder.CreateRet (retVal);
 
             return function;
         }
@@ -84,11 +87,11 @@ namespace aga
         }
 
       private:
-        std::unique_ptr<agaASTBlock> m_Parent;
         std::string m_Name;
         std::vector<std::string> m_Parameters;
         std::vector<std::unique_ptr<agaASTNode>> m_Statements;
         std::unique_ptr<agaASTNode> m_ReturnExpr;
+        std::map<std::string, llvm::AllocaInst *> m_Symbols;
     };
 }
 

@@ -11,7 +11,7 @@ namespace aga
     class agaASTMatch : public agaASTNode
     {
       public:
-        agaASTMatch () : agaASTNode (MatchNode) {}
+        agaASTMatch (std::shared_ptr<agaASTNode> &parentNode) : agaASTNode (MatchNode, parentNode) {}
 
         void AddCase (std::unique_ptr<agaASTNode> caseExpr) { m_Cases.push_back (std::move (caseExpr)); }
 

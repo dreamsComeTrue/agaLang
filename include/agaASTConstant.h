@@ -10,12 +10,18 @@ namespace aga
     class agaASTConstant : public agaASTExpression
     {
       public:
-        agaASTConstant (agaToken token, long value) : agaASTExpression (ConstantNode, IntegerConst, token), m_TypeInfo (value) {}
+        agaASTConstant (agaToken token, long value, std::shared_ptr<agaASTNode> parentNode)
+            : agaASTExpression (ConstantNode, IntegerConst, token, parentNode), m_TypeInfo (value)
+        {
+        }
 
-        agaASTConstant (agaToken token, double value) : agaASTExpression (ConstantNode, FloatConst, token), m_TypeInfo (value) {}
+        agaASTConstant (agaToken token, double value, std::shared_ptr<agaASTNode> parentNode)
+            : agaASTExpression (ConstantNode, FloatConst, token, parentNode), m_TypeInfo (value)
+        {
+        }
 
-        agaASTConstant (agaToken token, std::string value)
-            : agaASTExpression (ConstantNode, StringConst, token), m_TypeInfo (const_cast<char *> (value.c_str ()))
+        agaASTConstant (agaToken token, std::string value, std::shared_ptr<agaASTNode> &parentNode)
+            : agaASTExpression (ConstantNode, StringConst, token, parentNode), m_TypeInfo (const_cast<char *> (value.c_str ()))
         {
         }
 

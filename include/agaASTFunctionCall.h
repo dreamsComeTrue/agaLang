@@ -10,7 +10,7 @@ namespace aga
     class agaASTFunctionCall : public agaASTNode
     {
       public:
-        agaASTFunctionCall () : agaASTNode (FunctionCallNode) {}
+        agaASTFunctionCall (std::shared_ptr<agaASTNode> &parentNode) : agaASTNode (FunctionCallNode, parentNode) {}
 
         void AddParameter (std::unique_ptr<agaASTNode> node) { m_Parameters.push_back (std::move (node)); }
 

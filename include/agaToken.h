@@ -95,7 +95,7 @@ namespace aga
 
 		const std::string &GetLiteral () const;
 
-		void Print ();
+        void Print () const;
 
         const std::string GetInfo () const;
 

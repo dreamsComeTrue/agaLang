@@ -11,7 +11,10 @@ namespace aga
     class agaASTVariable : public agaASTExpression
     {
       public:
-        agaASTVariable (agaToken token) : agaASTExpression (VariableNode, Variable, token) {}
+        agaASTVariable (agaToken token, std::shared_ptr<agaASTNode> &parentNode)
+            : agaASTExpression (VariableNode, Variable, token, parentNode)
+        {
+        }
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {

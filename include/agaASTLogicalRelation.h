@@ -10,15 +10,16 @@ namespace aga
     class agaASTLogicalRelation : public agaASTExpression
     {
       public:
-        agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> child)
-            : agaASTExpression (LogicalRelationNode, LogicalRelation, token),
+        agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> child, std::shared_ptr<agaASTNode> &parentNode)
+            : agaASTExpression (LogicalRelationNode, LogicalRelation, token, parentNode),
               m_Operator (token.GetLiteral ()),
               m_Left (std::move (child))
         {
         }
 
-        agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right)
-            : agaASTExpression (LogicalRelationNode, LogicalRelation, token),
+        agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right,
+                               std::shared_ptr<agaASTNode> &parentNode)
+            : agaASTExpression (LogicalRelationNode, LogicalRelation, token, parentNode),
               m_Operator (token.GetLiteral ()),
               m_Left (std::move (left)),
               m_Right (std::move (right))

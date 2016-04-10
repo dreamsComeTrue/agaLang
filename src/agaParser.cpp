@@ -24,7 +24,9 @@ namespace aga
     template <class T_SRC, class T_DEST> std::unique_ptr<T_DEST> unique_cast (std::unique_ptr<T_SRC> &&src)
     {
         if (!src)
+        {
             return std::unique_ptr<T_DEST> ();
+        }
 
         // Throws a std::bad_cast() if this doesn't work out
         T_DEST *dest_ptr = &dynamic_cast<T_DEST &> (*src.get ());
@@ -53,15 +55,16 @@ namespace aga
 
     std::unique_ptr<agaASTProgram> agaParser::ParseProgram ()
     {
-        std::unique_ptr<agaASTProgram> program = std::unique_ptr<agaASTProgram> (new agaASTProgram ());
-        std::unique_ptr<agaASTBlock> globalBlock = std::unique_ptr<agaASTBlock> (new agaASTBlock (nullptr));
+        m_CurrentBlock = std::shared_ptr<agaASTProgram> (new agaASTProgram (nullptr));
+
+        std::unique_ptr<agaASTProgram> program = std::make_unique<agaASTProgram> (m_CurrentBlock);
 
         ReadNextToken ();
         while (m_CurrentToken.GetType () != TokenUnknown && m_CurrentToken.GetType () != TokenEndOfFile)
         {
             if (AcceptToken (TokenIdentifier) || AcceptToken (TokenColon))
             {
-                std::unique_ptr<agaASTBlock> block = unique_cast<agaASTNode, agaASTBlock> (ParseBlock (std::move (globalBlock)));
+                std::unique_ptr<agaASTBlock> block = unique_cast<agaASTNode, agaASTBlock> (ParseBlock ());
 
                 if (block != nullptr)
                 {
@@ -84,9 +87,12 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    std::unique_ptr<agaASTNode> agaParser::ParseBlock (std::unique_ptr<agaASTBlock> parentBlock)
+    std::unique_ptr<agaASTNode> agaParser::ParseBlock ()
     {
-        std::unique_ptr<agaASTBlock> block = std::unique_ptr<agaASTBlock> (new agaASTBlock (std::move (parentBlock)));
+        std::shared_ptr<agaASTNode> lastBlock = m_CurrentBlock;
+
+        m_CurrentBlock = std::shared_ptr<agaASTBlock> (new agaASTBlock (lastBlock));
+        std::unique_ptr<agaASTBlock> block = std::make_unique<agaASTBlock> (m_CurrentBlock);
 
         if (AcceptToken (TokenIdentifier) || AcceptToken (TokenColon))
         {
@@ -133,7 +139,7 @@ namespace aga
                     }
                     else if (m_Lexer->CheckUntilToken (TokenColon, {TokenIdentifier}))
                     {
-                        partNode = ParseBlock (std::move (block));
+                        partNode = ParseBlock ();
                     }
                     else
                     {
@@ -161,10 +167,22 @@ namespace aga
             AssertToken (TokenEquals);
             ReadNextToken ();
 
-            block->SetReturnExpr (ParseExpression ());
+            //  If we encounter ',' - we end block without result expression,
+            //  otherwise - set next expression as a result
+            if (AcceptToken (TokenComma))
+            {
+                AssertToken (TokenComma);
+                ReadNextToken ();
+            }
+            else
+            {
+                block->SetReturnExpr (ParseExpression ());
+            }
 
             ReadEOL ();
         }
+
+        m_CurrentBlock = lastBlock;
 
         return std::unique_ptr<agaASTNode> (block.release ());
     }
@@ -180,7 +198,7 @@ namespace aga
 
         if (AcceptToken (TokenIdentifier))
         {
-            functionCall = std::unique_ptr<agaASTFunctionCall> (new agaASTFunctionCall ());
+            functionCall = std::make_unique<agaASTFunctionCall> (m_CurrentBlock);
             functionCall->SetName (m_CurrentToken.GetLiteral ());
 
             // Read block identifier
@@ -218,10 +236,10 @@ namespace aga
             ReadNextToken ();
             ReadNextToken ();
 
-            std::unique_ptr<agaASTVariable> variable = std::unique_ptr<agaASTVariable> (new agaASTVariable (token));
+            std::unique_ptr<agaASTVariable> variable = std::make_unique<agaASTVariable> (token, m_CurrentBlock);
             std::unique_ptr<agaASTExpression> expression = unique_cast<agaASTNode, agaASTExpression> (ParseExpression ());
 
-            assignment = std::unique_ptr<agaASTAssignment> (new agaASTAssignment (variable, expression));
+            assignment = std::make_unique<agaASTAssignment> (variable, expression, m_CurrentBlock);
 
             AssertTokens ({TokenComma, TokenEquals, TokenEndOfLine, TokenEndOfFile});
 
@@ -249,7 +267,7 @@ namespace aga
 
             std::unique_ptr<agaASTExpression> matchExpression = unique_cast<agaASTNode, agaASTExpression> (ParseExpression ());
 
-            match = std::unique_ptr<agaASTMatch> (new agaASTMatch ());
+            match = std::make_unique<agaASTMatch> (m_CurrentBlock);
 
             match->SetExpression (matchExpression);
 
@@ -260,7 +278,7 @@ namespace aga
 
             while (tokenType != TokenEndOfFile && tokenType != TokenEquals)
             {
-                match->AddCase (ParseBlock (nullptr));
+                match->AddCase (ParseBlock ());
 
                 tokenType = m_CurrentToken.GetType ();
             }
@@ -293,7 +311,7 @@ namespace aga
             std::unique_ptr<agaASTNode> booleanExpression = ParseBooleanExpression ();
 
             return std::unique_ptr<agaASTNode> (
-                new agaASTLogicalRelation (token, std::move (booleanTerm), std::move (booleanExpression)));
+                new agaASTLogicalRelation (token, std::move (booleanTerm), std::move (booleanExpression), m_CurrentBlock));
         }
 
         return booleanTerm;
@@ -314,7 +332,7 @@ namespace aga
             std::unique_ptr<agaASTNode> booleanTerm = ParseBooleanTerm ();
 
             return std::unique_ptr<agaASTNode> (
-                new agaASTLogicalRelation (token, std::move (booleanFactor), std::move (booleanTerm)));
+                new agaASTLogicalRelation (token, std::move (booleanFactor), std::move (booleanTerm), m_CurrentBlock));
         }
 
         return booleanFactor;
@@ -332,7 +350,7 @@ namespace aga
 
             std::unique_ptr<agaASTNode> booleanRelation = ParseBooleanRelation ();
 
-            return std::unique_ptr<agaASTNode> (new agaASTLogicalRelation (token, std::move (booleanRelation)));
+            return std::unique_ptr<agaASTNode> (new agaASTLogicalRelation (token, std::move (booleanRelation), m_CurrentBlock));
         }
 
         return ParseBooleanRelation ();
@@ -354,7 +372,7 @@ namespace aga
             std::unique_ptr<agaASTNode> rightExpression = ParseSumExpression ();
 
             return std::unique_ptr<agaASTNode> (
-                new agaASTBooleanRelation (token, std::move (sumExpression), std::move (rightExpression)));
+                new agaASTBooleanRelation (token, std::move (sumExpression), std::move (rightExpression), m_CurrentBlock));
         }
 
         return sumExpression;
@@ -386,8 +404,8 @@ namespace aga
 
             std::unique_ptr<agaASTNode> rightTermExpression = ParseTerm ();
 
-            leftTermExpression = std::unique_ptr<agaASTNode> (
-                new agaASTBinaryOperator (binaryOperationToken, std::move (leftTermExpression), std::move (rightTermExpression)));
+            leftTermExpression = std::make_unique<agaASTBinaryOperator> (binaryOperationToken, std::move (leftTermExpression),
+                                                                         std::move (rightTermExpression), m_CurrentBlock);
         }
 
         return leftTermExpression;
@@ -408,8 +426,8 @@ namespace aga
 
             std::unique_ptr<agaASTNode> rightFactorExpression = ParseFactor ();
 
-            leftFactorExpression = std::unique_ptr<agaASTNode> (new agaASTBinaryOperator (
-                binaryOperationToken, std::move (leftFactorExpression), std::move (rightFactorExpression)));
+            leftFactorExpression = std::make_unique<agaASTBinaryOperator> (binaryOperationToken, std::move (leftFactorExpression),
+                                                                           std::move (rightFactorExpression), m_CurrentBlock);
         }
 
         return leftFactorExpression;
@@ -437,7 +455,7 @@ namespace aga
             }
             else
             {
-                result = std::unique_ptr<agaASTNode> (new agaASTVariable (m_CurrentToken));
+                result = std::make_unique<agaASTVariable> (m_CurrentToken, m_CurrentBlock);
                 ReadNextToken ();
             }
         }
@@ -447,7 +465,7 @@ namespace aga
             {
                 long value = atol (m_CurrentToken.GetLiteral ().c_str ());
 
-                result = std::unique_ptr<agaASTNode> (new agaASTConstant (m_CurrentToken, value));
+                result = std::make_unique<agaASTConstant> (m_CurrentToken, value, m_CurrentBlock);
             }
             else
             {
@@ -455,13 +473,13 @@ namespace aga
                 {
                     double value = atof (m_CurrentToken.GetLiteral ().c_str ());
 
-                    result = std::unique_ptr<agaASTNode> (new agaASTConstant (m_CurrentToken, value));
+                    result = std::make_unique<agaASTConstant> (m_CurrentToken, value, m_CurrentBlock);
                 }
                 else
                 {
                     if (AcceptToken (TokenString))
                     {
-                        result = std::unique_ptr<agaASTNode> (new agaASTConstant (m_CurrentToken, m_CurrentToken.GetLiteral ()));
+                        result = std::make_unique<agaASTConstant> (m_CurrentToken, m_CurrentToken.GetLiteral (), m_CurrentBlock);
                     }
                     else
                     {

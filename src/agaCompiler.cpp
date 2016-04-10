@@ -1,17 +1,18 @@
 #include <memory>
 
+#if 0
 #include "llvm/ExecutionEngine/GenericValue.h"
 #include "llvm/ExecutionEngine/Interpreter.h"
-#include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/raw_ostream.h"
+#endif
 
-#include "agaASTProgram.h"
+#include "llvm/IR/LLVMContext.h"
+
 #include "agaCodeGenerator.h"
 #include "agaCompiler.h"
 #include "agaException.h"
-#include "agaLang.h"
 #include "agaLogger.h"
 #include "agaParser.h"
 
@@ -30,7 +31,7 @@ namespace aga
     std::unique_ptr<agaASTProgram> agaCompiler::CompileSource (const std::string &fileName, const std::string &code)
     {
         m_FileName = fileName;
-        m_Parser = std::unique_ptr<agaParser> (new agaParser (code));
+        m_Parser = std::make_unique<agaParser> (code);
 
         std::unique_ptr<agaASTProgram> programNode = nullptr;
 
@@ -48,9 +49,24 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    void Execute (std::unique_ptr<llvm::Module> &module)
+    void agaCompiler::GenerateCode (std::unique_ptr<agaASTProgram> programNode)
     {
+        if (programNode != nullptr)
+        {
+            m_CodeGenerator = std::make_unique<agaCodeGenerator> ();
+            m_CodeGenerator->GenerateCode (this, std::move (programNode));
+            m_CodeGenerator->GetModule ()->dump ();
+        }
+    }
+
+    //--------------------------------------------------------------------------------
+
+    void agaCompiler::Execute () const
+    {
+#if 0
         llvm::InitializeNativeTarget ();
+
+        std::unique_ptr<llvm::Module> &module = m_CodeGenerator->GetModule ();
 
         // Now we going to create JIT
         std::string errStr;
@@ -76,25 +92,12 @@ namespace aga
 
         // Call the Fibonacci function with argument n:
         llvm::ArrayRef<llvm::GenericValue> Args;
-        llvm::Function* func = modulePtr->getFunction ("main");
+        llvm::Function *func = module->getFunction ("main");
         llvm::GenericValue GV = EE->runFunction (func, Args);
 
         // import result of execution
         llvm::outs () << "Result: " << GV.IntVal << "\n";
-    }
-
-    void agaCompiler::GenerateCode (std::unique_ptr<agaASTProgram> programNode)
-    {
-        if (programNode != nullptr)
-        {
-            m_CodeGenerator = std::unique_ptr<agaCodeGenerator> (new agaCodeGenerator ());
-
-            std::unique_ptr<llvm::Module> &module = m_CodeGenerator.get ()->GenerateCode (this, std::move (programNode));
-
-            module->dump ();
-
-            Execute (module);
-        }
+#endif
     }
 
     //--------------------------------------------------------------------------------

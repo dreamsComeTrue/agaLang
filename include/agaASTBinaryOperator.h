@@ -10,8 +10,9 @@ namespace aga
     class agaASTBinaryOperator : public agaASTExpression
     {
       public:
-        agaASTBinaryOperator (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right)
-            : agaASTExpression (BinaryOperationNode, BinaryOperation, token),
+        agaASTBinaryOperator (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right,
+                              std::shared_ptr<agaASTNode> parentNode)
+            : agaASTExpression (BinaryOperationNode, BinaryOperation, token, parentNode),
               m_Operator (token.GetLiteral ().at (0)),
               m_Left (std::move (left)),
               m_Right (std::move (right))

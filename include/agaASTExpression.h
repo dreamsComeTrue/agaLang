@@ -19,26 +19,22 @@ namespace aga
 
     class agaASTExpression : public agaASTNode
     {
-    public:
-        agaASTExpression (ASTNodeType nodeType, ExpressionType expressionType, agaToken token) :
-            agaASTNode (nodeType, token),
-            m_Type (expressionType) { }
-
-        ExpressionType GetExpressionType ()
+      public:
+        agaASTExpression (ASTNodeType nodeType, ExpressionType expressionType, agaToken token,
+                          std::shared_ptr<agaASTNode> &parentNode)
+            : agaASTNode (nodeType, token, parentNode), m_Type (expressionType)
         {
-            return m_Type;
         }
 
-        virtual llvm::Value* Evaluate (agaCodeGenerator* codeGenerator) = 0;
+        ExpressionType GetExpressionType () { return m_Type; }
 
-        virtual const std::string ToString ()
-        {
-            return "KOT";
-        }
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) = 0;
 
-    protected:
-        ExpressionType	m_Type;
+        virtual const std::string ToString () { return "KOT"; }
+
+      protected:
+        ExpressionType m_Type;
     };
 }
 
-#endif	//	_AGA_ASTEXPRESSION_H_
+#endif //	_AGA_ASTEXPRESSION_H_

@@ -1,1 +1,10 @@
 build/
+CMakeCache.txt
+CMakeFiles/3.5.0-rc2/CMakeSystem.cmake
+CMakeFiles/3.5.0-rc2/CompilerIdC/CMakeCCompilerId.c
+CMakeFiles/3.5.0-rc2/CompilerIdCXX/CMakeCXXCompilerId.cpp
+CMakeFiles/cmake.check_cache
+CMakeFiles/CMakeError.log
+CMakeFiles/CMakeOutput.log
+llvm/*
+llvm-3.8.0.src/*

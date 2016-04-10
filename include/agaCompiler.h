@@ -21,6 +21,7 @@ namespace aga
         std::unique_ptr<agaASTProgram> CompileSource (const std::string &fileName, const std::string &code);
         void GenerateCode (std::unique_ptr<agaASTProgram> programNode);
         const std::string &GetFileName () const;
+        void Execute () const;
 
       private:
         std::string m_FileName;

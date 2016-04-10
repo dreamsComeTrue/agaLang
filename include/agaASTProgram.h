@@ -10,7 +10,7 @@ namespace aga
     class agaASTProgram : public agaASTNode
     {
       public:
-        agaASTProgram () : agaASTNode (ProgramNode) {}
+        agaASTProgram (std::shared_ptr<agaASTNode> parentNode) : agaASTNode (ProgramNode, parentNode) {}
         virtual ~agaASTProgram () {}
 
         void AddBlock (std::unique_ptr<agaASTBlock> &blockNode) { m_Blocks.push_back (std::move (blockNode)); }
