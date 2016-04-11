@@ -17,9 +17,17 @@ namespace aga
 
         const std::vector<std::unique_ptr<agaASTBlock>> &GetBlocks () { return m_Blocks; }
 
-        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
+        {
+            for (const std::unique_ptr<agaASTBlock> &block : m_Blocks)
+            {
+                block->Evaluate (codeGenerator);
+            }
+        }
 
-        virtual const std::string ToString () { return "KOT"; }
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) {}
+
+        virtual const std::string ToString () { return "PROGRAM"; }
 
       private:
         std::vector<std::unique_ptr<agaASTBlock>> m_Blocks;

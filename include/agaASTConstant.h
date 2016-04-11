@@ -11,17 +11,17 @@ namespace aga
     {
       public:
         agaASTConstant (agaToken token, long value, std::shared_ptr<agaASTNode> parentNode)
-            : agaASTExpression (ConstantNode, IntegerConst, token, parentNode), m_TypeInfo (value)
+            : agaASTExpression (ConstantNode, IntegerConstExpression, token, parentNode), m_TypeInfo (value)
         {
         }
 
         agaASTConstant (agaToken token, double value, std::shared_ptr<agaASTNode> parentNode)
-            : agaASTExpression (ConstantNode, FloatConst, token, parentNode), m_TypeInfo (value)
+            : agaASTExpression (ConstantNode, FloatConstExpression, token, parentNode), m_TypeInfo (value)
         {
         }
 
         agaASTConstant (agaToken token, std::string value, std::shared_ptr<agaASTNode> &parentNode)
-            : agaASTExpression (ConstantNode, StringConst, token, parentNode), m_TypeInfo (const_cast<char *> (value.c_str ()))
+            : agaASTExpression (ConstantNode, StringConstExpression, token, parentNode), m_TypeInfo (const_cast<char *> (value.c_str ()))
         {
         }
 
@@ -51,6 +51,8 @@ namespace aga
 
             return constant;
         }
+
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) {}
 
         virtual const std::string ToString () { return m_Token.GetLiteral (); }
 

@@ -60,8 +60,7 @@ namespace aga
 
             std::string sub = m_Source.substr (begin, end - begin);
 
-            token =
-                agaToken (sub, TokenIdentifier, m_CurrentLine, beginColumn, beginColumn + sub.length () - 1, m_CurrentPosition);
+            token = agaToken (sub, TokenIdentifier, m_CurrentLine, beginColumn, beginColumn + sub.length (), m_CurrentPosition);
 
             --m_CurrentPosition;
             m_CurrentColumn = lastColumn;

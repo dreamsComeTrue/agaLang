@@ -23,6 +23,8 @@ namespace aga
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
 
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) { m_Expression->SemanticCheck (analyzer); }
+
         virtual const std::string ToString () { return "?" + m_Expression->ToString (); }
 
       private:

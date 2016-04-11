@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "agaASTBlock.h"
 #include "agaASTExpression.h"
 #include "agaToken.h"
 
@@ -12,30 +13,47 @@ namespace aga
     {
       public:
         agaASTVariable (agaToken token, std::shared_ptr<agaASTNode> &parentNode)
-            : agaASTExpression (VariableNode, Variable, token, parentNode)
+            : agaASTExpression (VariableNode, VariableExpression, token, parentNode)
         {
         }
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            std::string line = "VAR " + m_Token.GetLiteral ();
+            std::string name = m_Token.GetLiteral ();
+            std::string line = "VAR " + name;
 
             m_AllocationBlock.SetCode (line);
 
-            std::map<std::string, llvm::AllocaInst *> &namedValues = codeGenerator->GetNamedValues ();
+            std::shared_ptr<agaASTBlock> block = GetBlock ();
 
-            if (namedValues.find (m_Token.GetLiteral ()) == namedValues.end ())
+            if (block->GetSymbol (name) == nullptr || block->GetSymbol (name)->GetValue () == nullptr)
             {
-                llvm::Type *type = llvm::Type::getInt64Ty (codeGenerator->GetModule ().get ()->getContext ());
-                llvm::AllocaInst *allocValue = codeGenerator->GetBuilder ().CreateAlloca (type, nullptr, m_Token.GetLiteral ());
+                llvm::AllocaInst *allocValue = codeGenerator->GetBuilder ().CreateAlloca (m_IRType, nullptr, name);
 
-                namedValues[m_Token.GetLiteral ()] = allocValue;
+                block->PutSymbol (name, allocValue, this);
             }
 
-            llvm::Value *load =
-                codeGenerator->GetBuilder ().CreateLoad (namedValues[m_Token.GetLiteral ()], m_Token.GetLiteral ());
+            llvm::Value *load = codeGenerator->GetBuilder ().CreateLoad (block->GetSymbol (name)->GetValue (), name);
 
             return load;
+        }
+
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer)
+        {
+            const std::shared_ptr<agaASTBlock> &block = analyzer->GetEnclosingBlock ();
+            std::string name = m_Token.GetLiteral ();
+
+            if (analyzer->GetPhase () == VariablePhase)
+            {
+                block->PutSymbol (name, nullptr, nullptr);
+            }
+            else
+            {
+                if (!block->GetSymbol (name))
+                {
+                    throw agaException (m_Token.GetInfo () + ": Variable '" + name + "' does not exist in current scope!");
+                }
+            }
         }
 
         virtual const std::string ToString () { return m_Token.GetLiteral (); }

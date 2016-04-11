@@ -11,7 +11,7 @@ namespace aga
     {
       public:
         agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> child, std::shared_ptr<agaASTNode> &parentNode)
-            : agaASTExpression (LogicalRelationNode, LogicalRelation, token, parentNode),
+            : agaASTExpression (LogicalRelationNode, LogicalRelationExpression, token, parentNode),
               m_Operator (token.GetLiteral ()),
               m_Left (std::move (child))
         {
@@ -19,7 +19,7 @@ namespace aga
 
         agaASTLogicalRelation (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right,
                                std::shared_ptr<agaASTNode> &parentNode)
-            : agaASTExpression (LogicalRelationNode, LogicalRelation, token, parentNode),
+            : agaASTExpression (LogicalRelationNode, LogicalRelationExpression, token, parentNode),
               m_Operator (token.GetLiteral ()),
               m_Left (std::move (left)),
               m_Right (std::move (right))
@@ -68,7 +68,13 @@ namespace aga
 
         const std::unique_ptr<agaASTNode> &GetRight () { return m_Right; }
 
-        virtual const std::string ToString () { return "KOT"; }
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer)
+        {
+            m_Left->SemanticCheck (analyzer);
+            m_Right->SemanticCheck (analyzer);
+        }
+
+        virtual const std::string ToString () { return "LOGICAL"; }
 
       private:
         std::unique_ptr<agaASTNode> m_Left;

@@ -13,6 +13,7 @@ namespace aga
 {
     class agaLexer;
     class agaASTProgram;
+    class agaSemanticAnalyzer;
     class agaASTBlock;
 
     class agaParser
@@ -55,6 +56,7 @@ namespace aga
       private:
         agaLexer *m_Lexer;
         std::shared_ptr<agaASTNode> m_CurrentBlock;
+        std::shared_ptr<agaSemanticAnalyzer> m_SemanticAnalyzer;
         agaToken m_LastToken;
         agaToken m_CurrentToken;
     };

@@ -1,6 +1,7 @@
 #ifndef _AGA_ASTNODE_H_
 #define _AGA_ASTNODE_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -8,6 +9,8 @@
 
 #include "agaAllocationBlock.h"
 #include "agaCodeGenerator.h"
+#include "agaSemanticAnalyzer.h"
+#include "agaException.h"
 #include "agaToken.h"
 
 namespace aga
@@ -39,6 +42,8 @@ namespace aga
         {"AssignmentNode", AssignmentNode},
     };
 
+    class agaASTBlock;
+
     class agaASTNode
     {
       public:
@@ -58,6 +63,12 @@ namespace aga
 
         const agaToken &GetToken () const { return m_Token; }
 
+        const std::shared_ptr<agaASTBlock> GetBlock () { return std::static_pointer_cast<agaASTBlock> (m_Parent); }
+
+        void SetIRType (llvm::Type *type) { m_IRType = type; }
+
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) = 0;
+
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) = 0;
 
         virtual const std::string ToString () = 0;
@@ -67,6 +78,7 @@ namespace aga
         ASTNodeType m_Type;
         agaToken m_Token;
         agaAllocationBlock m_AllocationBlock;
+        llvm::Type *m_IRType;
     };
 }
 

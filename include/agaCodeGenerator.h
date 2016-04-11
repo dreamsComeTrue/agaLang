@@ -21,13 +21,11 @@ namespace aga
 
         std::unique_ptr<llvm::Module> &GenerateCode (const agaCompiler *compiler, std::unique_ptr<agaASTProgram> program);
         std::unique_ptr<llvm::Module> &GetModule () { return m_Module; }
-        llvm::IRBuilder<> &GetBuilder () const { return (*m_IRBuilder.get ()); }
-        std::map<std::string, llvm::AllocaInst *> &GetNamedValues () { return m_NamedValues; }
+        llvm::IRBuilder<> &GetBuilder () const { return (*m_IRBuilder.get ()); }        
 
       protected:
         std::unique_ptr<llvm::Module> m_Module;
-        std::unique_ptr<llvm::IRBuilder<>> m_IRBuilder;
-        std::map<std::string, llvm::AllocaInst *> m_NamedValues;
+        std::unique_ptr<llvm::IRBuilder<>> m_IRBuilder;        
     };
 }
 

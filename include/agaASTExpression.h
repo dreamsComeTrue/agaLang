@@ -7,14 +7,14 @@ namespace aga
 {
     enum ExpressionType
     {
-        Assignment,
-        BinaryOperation,
-        BooleanRelation,
-        LogicalRelation,
-        IntegerConst,
-        FloatConst,
-        StringConst,
-        Variable
+        AssignmentExpression,
+        BinaryOperationExpression,
+        BooleanRelationExpression,
+        LogicalRelationExpression,
+        IntegerConstExpression,
+        FloatConstExpression,
+        StringConstExpression,
+        VariableExpression
     };
 
     class agaASTExpression : public agaASTNode
@@ -30,7 +30,9 @@ namespace aga
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) = 0;
 
-        virtual const std::string ToString () { return "KOT"; }
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) = 0;
+
+        virtual const std::string ToString () = 0;
 
       protected:
         ExpressionType m_Type;

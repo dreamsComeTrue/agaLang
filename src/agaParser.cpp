@@ -16,6 +16,7 @@
 #include "agaException.h"
 #include "agaLexer.h"
 #include "agaParser.h"
+#include "agaSemanticAnalyzer.h"
 
 namespace aga
 {
@@ -39,7 +40,11 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    agaParser::agaParser (const std::string &source) { m_Lexer = new agaLexer (source); }
+    agaParser::agaParser (const std::string &source)
+    {
+        m_Lexer = new agaLexer (source);
+        m_SemanticAnalyzer = std::make_shared<agaSemanticAnalyzer> ();
+    }
 
     //--------------------------------------------------------------------------------
 
@@ -157,6 +162,9 @@ namespace aga
 
                 if (partNode != nullptr)
                 {
+                    m_SemanticAnalyzer->SetEnclosingBlock (std::static_pointer_cast<agaASTBlock> (m_CurrentBlock));
+
+                    partNode->SemanticCheck (m_SemanticAnalyzer);
                     block->AddStatement (partNode);
                 }
 

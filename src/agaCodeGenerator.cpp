@@ -25,16 +25,11 @@ namespace aga
     //--------------------------------------------------------------------------------
 
     std::unique_ptr<llvm::Module> &agaCodeGenerator::GenerateCode (const agaCompiler *compiler,
-                                                                         std::unique_ptr<agaASTProgram> program)
+                                                                   std::unique_ptr<agaASTProgram> program)
     {
         m_Module = llvm::make_unique<llvm::Module> (compiler->GetFileName (), llvm::getGlobalContext ());
 
-        const std::vector<std::unique_ptr<agaASTBlock>> &blocks = program->GetBlocks ();
-
-        for (const std::unique_ptr<agaASTBlock> &block : blocks)
-        {
-            block->Evaluate (this);
-        }
+        program->Evaluate (this);
 
         return m_Module;
     }

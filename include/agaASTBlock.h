@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "agaASTNode.h"
+#include "agaSymbol.h"
 
 namespace aga
 {
@@ -28,21 +29,57 @@ namespace aga
 
         const std::unique_ptr<agaASTNode> &GetReturnExpr () { return m_ReturnExpr; }
 
+        std::vector<std::shared_ptr<agaSymbol>> &GetSymbols () { return m_Symbols; }
+
+        std::shared_ptr<agaSymbol> GetSymbol (const std::string &name)
+        {
+            for (std::shared_ptr<agaSymbol> &symbol : m_Symbols)
+            {
+                if (symbol->GetName () == name)
+                {
+                    return symbol;
+                }
+            }
+
+            return nullptr;
+        }
+
+        void PutSymbol (const std::string &name, llvm::AllocaInst *value, agaASTNode *parent)
+        {
+            if (GetSymbol (name) == nullptr)
+            {
+                m_Symbols.push_back (std::make_shared<agaSymbol> (name, value, parent));
+            }
+            else
+            {
+                for (std::shared_ptr<agaSymbol> &symbol : m_Symbols)
+                {
+                    if (symbol->GetName () == name)
+                    {
+                        symbol->SetValue (value);
+                        symbol->SetParent (parent);
+
+                        break;
+                    }
+                }
+            }
+        }
+
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            llvm::FunctionType *funcType = llvm::FunctionType::get (llvm::Type::getInt64Ty (llvm::getGlobalContext ()), false);
-            llvm::Function *function = llvm::Function::Create (funcType, llvm::Function::LinkageTypes::InternalLinkage, m_Name,
-                                                               codeGenerator->GetModule ().get ());
+            llvm::FunctionType *protoFuncType =
+                llvm::FunctionType::get (llvm::Type::getVoidTy (llvm::getGlobalContext ()), false);
+            llvm::Function *protoFunction = llvm::Function::Create (protoFuncType, llvm::Function::LinkageTypes::CommonLinkage);
 
             // Set names for all arguments.
             unsigned idx = 0;
-            for (auto &arg : function->args ())
+            for (auto &arg : protoFunction->args ())
             {
                 arg.setName (m_Parameters[idx++]);
             }
 
-            llvm::BasicBlock *basicBlock = llvm::BasicBlock::Create (llvm::getGlobalContext (), "block", function);
-            llvm::IRBuilder<>& builder = codeGenerator->GetBuilder ();
+            llvm::BasicBlock *basicBlock = llvm::BasicBlock::Create (llvm::getGlobalContext (), "block", protoFunction);
+            llvm::IRBuilder<> &builder = codeGenerator->GetBuilder ();
 
             builder.SetInsertPoint (basicBlock);
 
@@ -53,15 +90,23 @@ namespace aga
                 retVal = statement->Evaluate (codeGenerator);
             }
 
-            if (m_ReturnExpr.get() != nullptr)
+            if (m_ReturnExpr.get () != nullptr)
             {
                 retVal = m_ReturnExpr->Evaluate (codeGenerator);
             }
 
             builder.CreateRet (retVal);
 
+            llvm::FunctionType *funcType = llvm::FunctionType::get (retVal->getType (), false);
+            llvm::Function *function = llvm::Function::Create (funcType, llvm::Function::LinkageTypes::CommonLinkage, m_Name,
+                                                               codeGenerator->GetModule ().get ());
+
+            function->getBasicBlockList ().splice (function->begin (), protoFunction->getBasicBlockList ());
+
             return function;
         }
+
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) {}
 
         virtual const std::string ToString ()
         {
@@ -91,7 +136,7 @@ namespace aga
         std::vector<std::string> m_Parameters;
         std::vector<std::unique_ptr<agaASTNode>> m_Statements;
         std::unique_ptr<agaASTNode> m_ReturnExpr;
-        std::map<std::string, llvm::AllocaInst *> m_Symbols;
+        std::vector<std::shared_ptr<agaSymbol>> m_Symbols;
     };
 }
 
