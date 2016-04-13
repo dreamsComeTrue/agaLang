@@ -21,40 +21,16 @@ namespace aga
         }
 
         agaASTConstant (agaToken token, std::string value, std::shared_ptr<agaASTNode> &parentNode)
-            : agaASTExpression (ConstantNode, StringConstExpression, token, parentNode), m_TypeInfo (const_cast<char *> (value.c_str ()))
+            : agaASTExpression (ConstantNode, StringConstExpression, token, parentNode),
+              m_TypeInfo (const_cast<char *> (value.c_str ()))
         {
         }
 
-        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
-        {
-            std::string line = "CONST " + m_Token.GetLiteral ();
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) override;
 
-            m_AllocationBlock.SetCode (line);
+        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) override {}
 
-            llvm::LLVMContext &context = codeGenerator->GetModule ().get ()->getContext ();
-            llvm::Value *constant = nullptr;
-
-            switch (m_TypeInfo.GetType ())
-            {
-            case agaTypeInfo::Type::INT:
-                constant = llvm::ConstantInt::get (llvm::Type::getInt64Ty (context), m_TypeInfo.GetLong (), true);
-                break;
-
-            case agaTypeInfo::Type::FLOAT:
-                constant = llvm::ConstantFP::get (llvm::Type::getDoubleTy (context), m_TypeInfo.GetDouble ());
-                break;
-
-            case agaTypeInfo::Type::STRING:
-                constant = llvm::ConstantDataArray::getString (context, m_TypeInfo.GetString ());
-                break;
-            }
-
-            return constant;
-        }
-
-        virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) {}
-
-        virtual const std::string ToString () { return m_Token.GetLiteral (); }
+        virtual const std::string ToString () override { return m_Token.GetLiteral (); }
 
       private:
         agaTypeInfo m_TypeInfo;
