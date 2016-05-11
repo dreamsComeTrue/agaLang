@@ -8,14 +8,14 @@ namespace aga
     class agaASTBinaryOperator : public agaASTExpression
     {
       public:
-        agaASTBinaryOperator (agaToken token, std::unique_ptr<agaASTNode> left, std::unique_ptr<agaASTNode> right,
+        agaASTBinaryOperator (agaToken token, std::shared_ptr<agaASTNode> left, std::shared_ptr<agaASTNode> right,
                               std::shared_ptr<agaASTNode> parentNode);
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) override;
 
-        const std::unique_ptr<agaASTNode> &GetLeft () { return m_Left; }
+        const std::shared_ptr<agaASTNode> &GetLeft () { return m_Left; }
 
-        const std::unique_ptr<agaASTNode> &GetRight () { return m_Right; }
+        const std::shared_ptr<agaASTNode> &GetRight () { return m_Right; }
 
         virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) override;
 
@@ -26,8 +26,8 @@ namespace aga
 
       private:
         char m_Operator;
-        std::unique_ptr<agaASTNode> m_Left;
-        std::unique_ptr<agaASTNode> m_Right;
+        std::shared_ptr<agaASTNode> m_Left;
+        std::shared_ptr<agaASTNode> m_Right;
     };
 }
 

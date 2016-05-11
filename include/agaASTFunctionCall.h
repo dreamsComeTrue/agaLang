@@ -12,15 +12,15 @@ namespace aga
       public:
         agaASTFunctionCall (std::shared_ptr<agaASTNode> &parentNode) : agaASTNode (FunctionCallNode, parentNode) {}
 
-        void AddParameter (std::unique_ptr<agaASTNode> node) { m_Parameters.push_back (std::move (node)); }
+        void AddParameter (std::shared_ptr<agaASTNode> node) { m_Parameters.push_back (node); }
 
-        const std::vector<std::unique_ptr<agaASTNode>> &GetParameters () { return m_Parameters; }
+        const std::vector<std::shared_ptr<agaASTNode>> &GetParameters () { return m_Parameters; }
 
         void SetName (const std::string &name) { m_Name = name; }
 
         const std::string &GetName () const { return m_Name; }
 
-        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
+        virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator);
 
         virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) {}
 
@@ -28,7 +28,7 @@ namespace aga
         {
             std::string result = "[ " + m_Name;
 
-            for (const std::unique_ptr<agaASTNode> &param : m_Parameters)
+            for (const std::shared_ptr<agaASTNode> &param : m_Parameters)
             {
                 result += " " + param->ToString ();
             }
@@ -40,7 +40,7 @@ namespace aga
 
       private:
         std::string m_Name;
-        std::vector<std::unique_ptr<agaASTNode>> m_Parameters;
+        std::vector<std::shared_ptr<agaASTNode>> m_Parameters;
     };
 }
 

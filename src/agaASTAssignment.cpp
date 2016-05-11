@@ -6,11 +6,11 @@ namespace aga
 {
     //--------------------------------------------------------------------------------
 
-    agaASTAssignment::agaASTAssignment (std::unique_ptr<agaASTVariable> &variable, std::unique_ptr<agaASTExpression> &expression,
+    agaASTAssignment::agaASTAssignment (std::shared_ptr<agaASTVariable> &variable, std::shared_ptr<agaASTExpression> &expression,
                                         std::shared_ptr<agaASTNode> parentNode)
         : agaASTExpression (ASTNodeType::AssignmentNode, ExpressionType::AssignmentExpression, variable->GetToken (), parentNode),
-          m_Variable (std::move (variable)),
-          m_Expression (std::move (expression))
+          m_Variable (variable),
+          m_Expression (expression)
     {
     }
 
@@ -23,14 +23,14 @@ namespace aga
         m_Variable->SetIRType (expressionValue->getType ());
 
         std::string valueName = m_Variable->GetToken ().GetLiteral ();
-        std::shared_ptr<agaASTBlock> block = GetBlock ();
+        std::shared_ptr<agaASTBlock> parent = GetParent ();
 
-        if (block->GetSymbol (valueName)->GetValue () == nullptr)
+        if (parent->GetSymbol (valueName) == nullptr || parent->GetSymbol (valueName)->GetValue () == nullptr)
         {
             m_Variable->Evaluate (codeGenerator);
         }
 
-        llvm::AllocaInst *alloc = block->GetSymbol (valueName)->GetValue ();
+        llvm::AllocaInst *alloc = parent->GetSymbol (valueName)->GetValue ();
 
         codeGenerator->GetBuilder ().CreateStore (expressionValue, alloc);
 

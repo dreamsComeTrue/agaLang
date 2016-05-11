@@ -19,7 +19,7 @@ namespace aga
         agaCodeGenerator ();
         ~agaCodeGenerator ();
 
-        std::unique_ptr<llvm::Module> &GenerateCode (const agaCompiler *compiler, std::unique_ptr<agaASTProgram> program);
+        std::unique_ptr<llvm::Module> &GenerateCode (const agaCompiler *compiler, std::shared_ptr<agaASTProgram> program);
         std::unique_ptr<llvm::Module> &GetModule () { return m_Module; }
         llvm::IRBuilder<> &GetBuilder () const { return (*m_IRBuilder.get ()); }        
 

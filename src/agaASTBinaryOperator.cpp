@@ -5,12 +5,12 @@ namespace aga
 {
     //--------------------------------------------------------------------------------
 
-    agaASTBinaryOperator::agaASTBinaryOperator (agaToken token, std::unique_ptr<agaASTNode> left,
-                                                std::unique_ptr<agaASTNode> right, std::shared_ptr<agaASTNode> parentNode)
+    agaASTBinaryOperator::agaASTBinaryOperator (agaToken token, std::shared_ptr<agaASTNode> left,
+                                                std::shared_ptr<agaASTNode> right, std::shared_ptr<agaASTNode> parentNode)
         : agaASTExpression (BinaryOperationNode, BinaryOperationExpression, token, parentNode),
           m_Operator (token.GetLiteral ().at (0)),
-          m_Left (std::move (left)),
-          m_Right (std::move (right))
+          m_Left (left),
+          m_Right (right)
     {
     }
 

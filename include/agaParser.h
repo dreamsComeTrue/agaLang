@@ -13,8 +13,10 @@ namespace aga
 {
     class agaLexer;
     class agaASTProgram;
-    class agaSemanticAnalyzer;
     class agaASTBlock;
+    class agaTypeInfo;
+
+    template <class T_SRC, class T_DEST> std::unique_ptr<T_DEST> unique_cast (std::unique_ptr<T_SRC> &&src);
 
     class agaParser
     {
@@ -22,24 +24,27 @@ namespace aga
         agaParser (const std::string &source);
         ~agaParser ();
 
-        std::unique_ptr<agaASTProgram> ParseProgram ();
+        std::shared_ptr<agaASTProgram> ParseProgram ();
 
       private:
         //	Internal
         agaToken ReadNextToken ();
 
-        std::unique_ptr<agaASTNode> ParseBlock ();
-        std::unique_ptr<agaASTNode> ParseFunctionCall ();
-        std::unique_ptr<agaASTNode> ParseExpression ();
-        std::unique_ptr<agaASTNode> ParseMatch ();
-        std::unique_ptr<agaASTNode> ParseBooleanExpression ();
-        std::unique_ptr<agaASTNode> ParseBooleanTerm ();
-        std::unique_ptr<agaASTNode> ParseBooleanFactor ();
-        std::unique_ptr<agaASTNode> ParseBooleanRelation ();
-        std::unique_ptr<agaASTNode> ParseSumExpression ();
-        std::unique_ptr<agaASTNode> ParseAssignment ();
-        std::unique_ptr<agaASTNode> ParseTerm ();
-        std::unique_ptr<agaASTNode> ParseFactor ();
+        std::shared_ptr<agaASTNode> ParseBlock ();
+        std::shared_ptr<agaASTBlockParameter> ParseBlockParameter ();
+        agaTypeInfo ParseTypeInfo ();
+        std::shared_ptr<agaASTNode> ParseFunctionCall ();
+        std::shared_ptr<agaASTNode> ParseExpression ();
+        std::shared_ptr<agaASTNode> ParseMatch ();
+        std::shared_ptr<agaASTNode> ParseBooleanExpression ();
+        std::shared_ptr<agaASTNode> ParseBooleanTerm ();
+        std::shared_ptr<agaASTNode> ParseBooleanFactor ();
+        std::shared_ptr<agaASTNode> ParseBooleanRelation ();
+        std::shared_ptr<agaASTNode> ParseSumExpression ();
+        std::shared_ptr<agaASTNode> ParseAssignment ();
+        std::shared_ptr<agaASTNode> ParseTerm ();
+        std::shared_ptr<agaASTNode> ParseFactor ();
+        std::shared_ptr<agaASTNode> ParseVariableDefinition ();
 
         bool AcceptToken (TokenType compareToken);
         bool CheckPreviousToken (TokenType compareToken);
@@ -56,7 +61,6 @@ namespace aga
       private:
         agaLexer *m_Lexer;
         std::shared_ptr<agaASTNode> m_CurrentBlock;
-        std::shared_ptr<agaSemanticAnalyzer> m_SemanticAnalyzer;
         agaToken m_LastToken;
         agaToken m_CurrentToken;
     };

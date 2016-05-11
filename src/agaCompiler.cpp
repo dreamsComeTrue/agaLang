@@ -15,6 +15,7 @@
 #include "agaException.h"
 #include "agaLogger.h"
 #include "agaParser.h"
+#include "agaSemanticAnalyzer.h"
 
 namespace aga
 {
@@ -28,16 +29,24 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    std::unique_ptr<agaASTProgram> agaCompiler::CompileSource (const std::string &fileName, const std::string &code)
+    std::shared_ptr<agaASTProgram> agaCompiler::CompileSource (const std::string &fileName, const std::string &code)
     {
         m_FileName = fileName;
         m_Parser = std::make_unique<agaParser> (code);
+        m_SemanticAnalyzer = std::make_shared<agaSemanticAnalyzer> ();
 
-        std::unique_ptr<agaASTProgram> programNode = nullptr;
+        std::shared_ptr<agaASTProgram> programNode = nullptr;
 
         try
         {
             programNode = m_Parser->ParseProgram ();
+
+            for (const std::shared_ptr<agaASTBlock> &block : programNode->GetBlocks ())
+            {
+                m_SemanticAnalyzer->SetEnclosingBlock (block);
+
+                block->SemanticCheck (m_SemanticAnalyzer);
+            }
         }
         catch (agaException &e)
         {
@@ -49,12 +58,12 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    void agaCompiler::GenerateCode (std::unique_ptr<agaASTProgram> programNode)
+    void agaCompiler::GenerateCode (std::shared_ptr<agaASTProgram> programNode)
     {
         if (programNode != nullptr)
         {
             m_CodeGenerator = std::make_unique<agaCodeGenerator> ();
-            m_CodeGenerator->GenerateCode (this, std::move (programNode));
+            m_CodeGenerator->GenerateCode (this, programNode);
             m_CodeGenerator->GetModule ()->dump ();
         }
     }

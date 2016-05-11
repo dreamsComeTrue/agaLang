@@ -8,20 +8,42 @@ namespace aga
     llvm::Value *agaASTVariable::Evaluate (agaCodeGenerator *codeGenerator)
     {
         std::string name = m_Token.GetLiteral ();
-        std::string line = "VAR " + name;
+        std::shared_ptr<agaASTBlock> parent = GetParent ();
 
-        m_AllocationBlock.SetCode (line);
-
-        std::shared_ptr<agaASTBlock> block = GetBlock ();
-
-        if (block->GetSymbol (name) == nullptr || block->GetSymbol (name)->GetValue () == nullptr)
+        if (parent->GetSymbol (name) == nullptr || parent->GetSymbol (name)->GetValue () == nullptr)
         {
+            m_IRType = m_TypeInfo.GetLLVMType ();
             llvm::AllocaInst *allocValue = codeGenerator->GetBuilder ().CreateAlloca (m_IRType, nullptr, name);
 
-            block->PutSymbol (name, allocValue, this);
+            parent->PutSymbol (name, allocValue, parent.get ());
         }
 
-        llvm::Value *load = codeGenerator->GetBuilder ().CreateLoad (block->GetSymbol (name)->GetValue (), name);
+        llvm::Value *load = codeGenerator->GetBuilder ().CreateLoad (parent->GetSymbol (name)->GetValue (), name);
+
+        if (m_InitExpression != nullptr)
+        {
+            llvm::Value *expressionValue = m_InitExpression->Evaluate (codeGenerator);
+            llvm::AllocaInst *alloc = parent->GetSymbol (name)->GetValue ();
+
+            if (expressionValue->getType () == m_IRType)
+            {
+                codeGenerator->GetBuilder ().CreateStore (expressionValue, alloc);
+            }
+            else if (expressionValue->getType ()->getScalarSizeInBits () > m_IRType->getScalarSizeInBits ())
+            {
+                llvm::Value *castValue =
+                    codeGenerator->GetBuilder ().CreateCast (llvm::Instruction::Trunc, expressionValue, m_IRType);
+                codeGenerator->GetBuilder ().CreateStore (castValue, alloc);
+            }
+            else if (expressionValue->getType ()->getScalarSizeInBits () < m_IRType->getScalarSizeInBits ())
+            {
+                llvm::Value *castValue =
+                    codeGenerator->GetBuilder ().CreateCast (llvm::Instruction::SExt, expressionValue, m_IRType);
+                codeGenerator->GetBuilder ().CreateStore (castValue, alloc);
+            }
+
+            return expressionValue;
+        }
 
         return load;
     }

@@ -13,13 +13,13 @@ namespace aga
         agaASTProgram (std::shared_ptr<agaASTNode> parentNode) : agaASTNode (ProgramNode, parentNode) {}
         virtual ~agaASTProgram () {}
 
-        void AddBlock (std::unique_ptr<agaASTBlock> &blockNode) { m_Blocks.push_back (std::move (blockNode)); }
+        void AddBlock (std::shared_ptr<agaASTBlock> &blockNode) { m_Blocks.push_back (blockNode); }
 
-        const std::vector<std::unique_ptr<agaASTBlock>> &GetBlocks () { return m_Blocks; }
+        const std::vector<std::shared_ptr<agaASTBlock>> &GetBlocks () { return m_Blocks; }
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator)
         {
-            for (const std::unique_ptr<agaASTBlock> &block : m_Blocks)
+            for (const std::shared_ptr<agaASTBlock> &block : m_Blocks)
             {
                 block->Evaluate (codeGenerator);
             }
@@ -30,7 +30,7 @@ namespace aga
         virtual const std::string ToString () { return "PROGRAM"; }
 
       private:
-        std::vector<std::unique_ptr<agaASTBlock>> m_Blocks;
+        std::vector<std::shared_ptr<agaASTBlock>> m_Blocks;
     };
 }
 

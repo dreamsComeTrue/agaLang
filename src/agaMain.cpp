@@ -66,10 +66,9 @@ int main (int argc, char **argv)
     if (source != "")
     {
         agaCompiler compiler;
-        std::unique_ptr<agaASTProgram, void (*) (agaASTProgram *)> program (
-            compiler.CompileSource (GetFileName (filePath), source).release (), DeleteASTProgram);
+        std::shared_ptr<agaASTProgram> program (compiler.CompileSource (GetFileName (filePath), source));
 
-        compiler.GenerateCode (std::unique_ptr<agaASTProgram> (program.release()));
+        compiler.GenerateCode (program);
     }
 
     return 0;

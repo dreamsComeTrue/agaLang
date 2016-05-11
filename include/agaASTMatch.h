@@ -13,13 +13,13 @@ namespace aga
       public:
         agaASTMatch (std::shared_ptr<agaASTNode> &parentNode) : agaASTNode (MatchNode, parentNode) {}
 
-        void AddCase (std::unique_ptr<agaASTNode> caseExpr) { m_Cases.push_back (std::move (caseExpr)); }
+        void AddCase (std::shared_ptr<agaASTNode> caseExpr) { m_Cases.push_back (caseExpr); }
 
-        const std::vector<std::unique_ptr<agaASTNode>> &GetCases () { return m_Cases; }
+        const std::vector<std::shared_ptr<agaASTNode>> &GetCases () { return m_Cases; }
 
-        void SetExpression (std::unique_ptr<agaASTExpression> &expression) { m_Expression = std::move (expression); }
+        void SetExpression (std::shared_ptr<agaASTExpression> &expression) { m_Expression = expression; }
 
-        const std::unique_ptr<agaASTExpression> &GetExpression () { return m_Expression; }
+        const std::shared_ptr<agaASTExpression> &GetExpression () { return m_Expression; }
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) { return nullptr; }
 
@@ -28,8 +28,8 @@ namespace aga
         virtual const std::string ToString () { return "?" + m_Expression->ToString (); }
 
       private:
-        std::unique_ptr<agaASTExpression> m_Expression;
-        std::vector<std::unique_ptr<agaASTNode>> m_Cases;
+        std::shared_ptr<agaASTExpression> m_Expression;
+        std::vector<std::shared_ptr<agaASTNode>> m_Cases;
     };
 }
 

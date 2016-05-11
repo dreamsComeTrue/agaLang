@@ -9,8 +9,8 @@
 
 #include "agaAllocationBlock.h"
 #include "agaCodeGenerator.h"
-#include "agaSemanticAnalyzer.h"
 #include "agaException.h"
+#include "agaSemanticAnalyzer.h"
 #include "agaToken.h"
 
 namespace aga
@@ -55,15 +55,13 @@ namespace aga
         {
         }
 
-        const std::shared_ptr<agaASTNode> GetParent () const { return m_Parent; }
-
         const ASTNodeType GetType () const { return m_Type; }
 
         agaAllocationBlock &GetAllocationBlock () { return m_AllocationBlock; }
 
         const agaToken &GetToken () const { return m_Token; }
 
-        const std::shared_ptr<agaASTBlock> GetBlock () { return std::static_pointer_cast<agaASTBlock> (m_Parent); }
+        const std::shared_ptr<agaASTBlock> GetParent () { return std::static_pointer_cast<agaASTBlock> (m_Parent); }
 
         void SetIRType (llvm::Type *type) { m_IRType = type; }
 

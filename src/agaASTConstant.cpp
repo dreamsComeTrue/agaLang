@@ -17,10 +17,10 @@ namespace aga
         switch (m_TypeInfo.GetType ())
         {
         case agaTypeInfo::Type::INT:
-            constant = llvm::ConstantInt::get (llvm::Type::getInt64Ty (context), m_TypeInfo.GetLong (), true);
+            constant = llvm::ConstantInt::get (llvm::Type::getInt128Ty(context), m_TypeInfo.GetLong (), true);
             break;
 
-        case agaTypeInfo::Type::FLOAT:
+        case agaTypeInfo::Type::Float:
             constant = llvm::ConstantFP::get (llvm::Type::getDoubleTy (context), m_TypeInfo.GetDouble ());
             break;
 

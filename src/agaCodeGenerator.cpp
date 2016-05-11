@@ -25,7 +25,7 @@ namespace aga
     //--------------------------------------------------------------------------------
 
     std::unique_ptr<llvm::Module> &agaCodeGenerator::GenerateCode (const agaCompiler *compiler,
-                                                                   std::unique_ptr<agaASTProgram> program)
+                                                                   std::shared_ptr<agaASTProgram> program)
     {
         m_Module = llvm::make_unique<llvm::Module> (compiler->GetFileName (), llvm::getGlobalContext ());
 

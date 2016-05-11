@@ -3,29 +3,38 @@
 
 #include "agaASTNode.h"
 #include "agaSymbol.h"
+#include "agaTypeInfo.h"
 
 namespace aga
 {
+    class agaASTBlockParameter;
+
     class agaASTBlock : public agaASTNode
     {
       public:
         agaASTBlock (std::shared_ptr<agaASTNode> parentNode) : agaASTNode (BlockNode, parentNode) {}
 
-        void AddStatement (std::unique_ptr<agaASTNode> &node) { m_Statements.push_back (std::move (node)); }
+        void AddStatement (std::shared_ptr<agaASTNode> &node) { m_Statements.push_back (node); }
 
-        const std::vector<std::unique_ptr<agaASTNode>> &GetStatements () { return m_Statements; }
+        const std::vector<std::shared_ptr<agaASTNode>> &GetStatements () { return m_Statements; }
 
-        void AddParameter (const std::string &parameter) { m_Parameters.push_back (parameter); }
+        void AddParameter (std::shared_ptr<agaASTBlockParameter> &parameter) { m_Parameters.push_back (parameter); }
 
-        const std::vector<std::string> &GetParameters () { return m_Parameters; }
+        const std::vector<std::shared_ptr<agaASTBlockParameter>> &GetParameters () { return m_Parameters; }
+
+        std::shared_ptr<agaASTBlockParameter> GetParameter (const std::string &name);
 
         void SetName (const std::string &name) { m_Name = name; }
 
         const std::string &GetName () const { return m_Name; }
 
-        void SetReturnExpr (std::unique_ptr<agaASTNode> returnExpr) { m_ReturnExpr = std::move (returnExpr); }
+        void SetReturnType (agaTypeInfo &typeInfo) { m_TypeInfo = typeInfo; }
 
-        const std::unique_ptr<agaASTNode> &GetReturnExpr () { return m_ReturnExpr; }
+        agaTypeInfo &GetReturnType () { return m_TypeInfo; }
+
+        void SetReturnExpr (std::shared_ptr<agaASTNode> returnExpr) { m_ReturnExpr = returnExpr; }
+
+        const std::shared_ptr<agaASTNode> &GetReturnExpr () { return m_ReturnExpr; }
 
         std::vector<std::shared_ptr<agaSymbol>> &GetSymbols () { return m_Symbols; }
 
@@ -41,9 +50,10 @@ namespace aga
 
       private:
         std::string m_Name;
-        std::vector<std::string> m_Parameters;
-        std::vector<std::unique_ptr<agaASTNode>> m_Statements;
-        std::unique_ptr<agaASTNode> m_ReturnExpr;
+        agaTypeInfo m_TypeInfo;
+        std::vector<std::shared_ptr<agaASTBlockParameter>> m_Parameters;
+        std::vector<std::shared_ptr<agaASTNode>> m_Statements;
+        std::shared_ptr<agaASTNode> m_ReturnExpr;
         std::vector<std::shared_ptr<agaSymbol>> m_Symbols;
     };
 }
