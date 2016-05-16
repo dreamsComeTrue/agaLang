@@ -20,6 +20,7 @@ namespace aga
               m_InitExpression (nullptr),
               m_TypeInfo (typeName)
         {
+            m_IRType = m_TypeInfo.GetLLVMType ();
         }
 
         agaASTVariable (agaToken token, const agaTypeInfo &typeInfo, std::shared_ptr<agaASTExpression> &initExpression,
@@ -28,6 +29,7 @@ namespace aga
               m_InitExpression (initExpression),
               m_TypeInfo (typeInfo)
         {
+            m_IRType = m_TypeInfo.GetLLVMType ();
         }
 
         const std::shared_ptr<agaASTExpression> &GetExpression () const { return m_InitExpression; }

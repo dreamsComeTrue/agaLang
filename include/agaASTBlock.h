@@ -40,7 +40,7 @@ namespace aga
 
         std::shared_ptr<agaSymbol> GetSymbol (const std::string &name);
 
-        void PutSymbol (const std::string &name, llvm::AllocaInst *value, agaASTNode *parent);
+        void PutSymbol (const std::string &name, agaASTNode *node, llvm::AllocaInst *value, agaASTNode *parent);
 
         virtual llvm::Value *Evaluate (agaCodeGenerator *codeGenerator) override;
 

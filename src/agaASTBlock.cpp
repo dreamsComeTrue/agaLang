@@ -35,11 +35,11 @@ namespace aga
 
     //--------------------------------------------------------------------------------
 
-    void agaASTBlock::PutSymbol (const std::string &name, llvm::AllocaInst *value, agaASTNode *parent)
+    void agaASTBlock::PutSymbol (const std::string &name, agaASTNode *node, llvm::AllocaInst *value, agaASTNode *parent)
     {
         if (GetSymbol (name) == nullptr)
         {
-            m_Symbols.push_back (std::make_shared<agaSymbol> (name, value, parent));
+            m_Symbols.push_back (std::make_shared<agaSymbol> (name, node, value, parent));
         }
         else
         {
@@ -48,6 +48,7 @@ namespace aga
                 if (symbol->GetName () == name)
                 {
                     symbol->SetValue (value);
+                    symbol->SetNode (node);
                     symbol->SetParent (parent);
 
                     break;

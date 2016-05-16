@@ -8,12 +8,15 @@ namespace aga
     class agaSymbol
     {
       public:
-        agaSymbol (const std::string &name, llvm::AllocaInst *value, agaASTNode *parent)
-            : m_Name (name), m_Value (value), m_Parent (parent)
+        agaSymbol (const std::string &name, agaASTNode *node, llvm::AllocaInst *value, agaASTNode *parent)
+            : m_Name (name), m_Node (node), m_Value (value), m_Parent (parent)
         {
         }
 
         const std::string &GetName () const { return m_Name; }
+
+        void SetNode (agaASTNode *node) { m_Node = node; }
+        agaASTNode *GetNode () { return m_Node; }
 
         void SetParent (agaASTNode *parent) { m_Parent = parent; }
         const agaASTNode *GetParent () const { return m_Parent; }
@@ -23,6 +26,7 @@ namespace aga
 
       private:
         std::string m_Name;
+        agaASTNode *m_Node;
         agaASTNode *m_Parent;
         llvm::AllocaInst *m_Value;
     };

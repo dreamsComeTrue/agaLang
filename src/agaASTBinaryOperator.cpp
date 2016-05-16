@@ -1,5 +1,6 @@
 #include "agaASTBinaryOperator.h"
 #include "agaASTBlock.h"
+#include "agaCast.h"
 
 namespace aga
 {
@@ -48,6 +49,8 @@ namespace aga
 
             left = builder.CreateUIToFP (left, llvm::Type::getDoubleTy (codeGenerator->GetModule ()->getContext ()), "uitofp");
         }
+
+        left = agaCast::CreateCast (left, rightType, codeGenerator->GetBuilder ());
 
         switch (m_Operator)
         {

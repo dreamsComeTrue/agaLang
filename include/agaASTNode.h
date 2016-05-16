@@ -47,11 +47,14 @@ namespace aga
     class agaASTNode
     {
       public:
-        agaASTNode (ASTNodeType type, std::shared_ptr<agaASTNode> parentNode) : m_Type (type), m_Parent (parentNode) {}
+        agaASTNode (ASTNodeType type, std::shared_ptr<agaASTNode> parentNode)
+            : m_Type (type), m_Parent (parentNode), m_IRType (nullptr)
+        {
+        }
         virtual ~agaASTNode () {}
 
         agaASTNode (ASTNodeType type, agaToken token, std::shared_ptr<agaASTNode> parentNode)
-            : m_Type (type), m_Token (token), m_Parent (parentNode)
+            : m_Type (type), m_Token (token), m_Parent (parentNode), m_IRType (nullptr)
         {
         }
 
@@ -64,6 +67,8 @@ namespace aga
         const std::shared_ptr<agaASTBlock> GetParent () { return std::static_pointer_cast<agaASTBlock> (m_Parent); }
 
         void SetIRType (llvm::Type *type) { m_IRType = type; }
+
+        llvm::Type *GetIRType () { return m_IRType; }
 
         virtual void SemanticCheck (std::shared_ptr<agaSemanticAnalyzer> analyzer) = 0;
 

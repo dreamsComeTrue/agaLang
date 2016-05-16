@@ -1,6 +1,7 @@
 #include "agaASTAssignment.h"
 #include "agaASTBlock.h"
 #include "agaASTVariable.h"
+#include "agaCast.h"
 
 namespace aga
 {
@@ -20,7 +21,7 @@ namespace aga
     {
         llvm::Value *expressionValue = m_Expression->Evaluate (codeGenerator);
 
-        m_Variable->SetIRType (expressionValue->getType ());
+        //    m_Variable->SetIRType (expressionValue->getType ());
 
         std::string valueName = m_Variable->GetToken ().GetLiteral ();
         std::shared_ptr<agaASTBlock> parent = GetParent ();
@@ -31,8 +32,10 @@ namespace aga
         }
 
         llvm::AllocaInst *alloc = parent->GetSymbol (valueName)->GetValue ();
+        llvm::Type *type = parent->GetSymbol (valueName)->GetNode ()->GetIRType ();
+        llvm::Value *assignValue = agaCast::CreateCast (expressionValue, type, codeGenerator->GetBuilder ());
 
-        codeGenerator->GetBuilder ().CreateStore (expressionValue, alloc);
+        codeGenerator->GetBuilder ().CreateStore (assignValue, alloc);
 
         std::string code = m_Token.GetLiteral ();
         GetAllocationBlock ().SetCode (code);

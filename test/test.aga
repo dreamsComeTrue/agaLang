@@ -1,4 +1,4 @@
-func.num8 a.num16:
-    cat.num64 = 1
-    dog.num8 = cat,
-=,
+func.num64:
+    cat.num64, me.num8
+    dog.num16 = 1 * cat
+= cat + me,

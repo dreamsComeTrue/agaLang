@@ -1,5 +1,6 @@
 #include "agaASTVariable.h"
 #include "agaASTBlock.h"
+#include "agaCast.h"
 
 namespace aga
 {
@@ -7,15 +8,16 @@ namespace aga
 
     llvm::Value *agaASTVariable::Evaluate (agaCodeGenerator *codeGenerator)
     {
+        m_IRType = m_TypeInfo.GetLLVMType ();
+
         std::string name = m_Token.GetLiteral ();
         std::shared_ptr<agaASTBlock> parent = GetParent ();
 
         if (parent->GetSymbol (name) == nullptr || parent->GetSymbol (name)->GetValue () == nullptr)
         {
-            m_IRType = m_TypeInfo.GetLLVMType ();
             llvm::AllocaInst *allocValue = codeGenerator->GetBuilder ().CreateAlloca (m_IRType, nullptr, name);
 
-            parent->PutSymbol (name, allocValue, parent.get ());
+            parent->PutSymbol (name, this, allocValue, parent.get ());
         }
 
         llvm::Value *load = codeGenerator->GetBuilder ().CreateLoad (parent->GetSymbol (name)->GetValue (), name);
@@ -24,23 +26,9 @@ namespace aga
         {
             llvm::Value *expressionValue = m_InitExpression->Evaluate (codeGenerator);
             llvm::AllocaInst *alloc = parent->GetSymbol (name)->GetValue ();
+            llvm::Value *assignvalue = agaCast::CreateCast (expressionValue, m_IRType, codeGenerator->GetBuilder ());
 
-            if (expressionValue->getType () == m_IRType)
-            {
-                codeGenerator->GetBuilder ().CreateStore (expressionValue, alloc);
-            }
-            else if (expressionValue->getType ()->getScalarSizeInBits () > m_IRType->getScalarSizeInBits ())
-            {
-                llvm::Value *castValue =
-                    codeGenerator->GetBuilder ().CreateCast (llvm::Instruction::Trunc, expressionValue, m_IRType);
-                codeGenerator->GetBuilder ().CreateStore (castValue, alloc);
-            }
-            else if (expressionValue->getType ()->getScalarSizeInBits () < m_IRType->getScalarSizeInBits ())
-            {
-                llvm::Value *castValue =
-                    codeGenerator->GetBuilder ().CreateCast (llvm::Instruction::SExt, expressionValue, m_IRType);
-                codeGenerator->GetBuilder ().CreateStore (castValue, alloc);
-            }
+            codeGenerator->GetBuilder ().CreateStore (assignvalue, alloc);
 
             return expressionValue;
         }
@@ -57,7 +45,7 @@ namespace aga
 
         if (analyzer->GetPhase () == VariablePhase)
         {
-            block->PutSymbol (name, nullptr, nullptr);
+            block->PutSymbol (name, nullptr, nullptr, nullptr);
         }
         else
         {
